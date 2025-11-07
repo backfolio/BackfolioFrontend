@@ -49,30 +49,30 @@ const LoginPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-gradient-light-subtle flex items-center justify-center px-4">
             <div className="max-w-md w-full">
                 {/* Logo/Home Link */}
                 <div className="text-center mb-8">
-                    <Link to="/" className="text-3xl font-bold text-white hover:text-purple-300 transition-colors">
-                        Backfolio
+                    <Link to="/" className="text-3xl font-bold text-premium-900 hover:text-primary-600 transition-colors">
+                        Back<span className="text-primary-600">folio</span>
                     </Link>
                 </div>
 
                 {/* Login/Signup Card */}
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
-                    <h2 className="text-3xl font-bold text-white mb-6 text-center">
+                <div className="glass-premium-solid rounded-3xl p-8 shadow-premium-xl">
+                    <h2 className="text-3xl font-bold text-premium-900 mb-6 text-center tracking-tight">
                         {isSignupMode ? 'Create Account' : 'Welcome Back'}
                     </h2>
 
                     {error && (
-                        <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-4">
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label htmlFor="email" className="block text-white mb-2">
+                            <label htmlFor="email" className="block text-premium-700 mb-2 text-sm font-semibold">
                                 Email
                             </label>
                             <input
@@ -80,14 +80,14 @@ const LoginPage = () => {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full px-4 py-3 rounded-lg bg-white border border-premium-300 text-premium-900 placeholder-premium-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="you@example.com"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-white mb-2">
+                            <label htmlFor="password" className="block text-premium-700 mb-2 text-sm font-semibold">
                                 Password
                             </label>
                             <input
@@ -95,7 +95,7 @@ const LoginPage = () => {
                                 id="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full px-4 py-3 rounded-lg bg-white border border-premium-300 text-premium-900 placeholder-premium-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="••••••••"
                                 required
                             />
@@ -103,7 +103,7 @@ const LoginPage = () => {
 
                         {isSignupMode && (
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-white mb-2">
+                                <label htmlFor="confirmPassword" className="block text-premium-700 mb-2 text-sm font-semibold">
                                     Confirm Password
                                 </label>
                                 <input
@@ -111,7 +111,7 @@ const LoginPage = () => {
                                     id="confirmPassword"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full px-4 py-3 rounded-lg bg-white border border-premium-300 text-premium-900 placeholder-premium-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -121,18 +121,18 @@ const LoginPage = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white py-3 rounded-lg font-semibold transition-colors"
+                            className="w-full bg-gradient-purple-light hover:shadow-premium-purple disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition-all shadow-premium"
                         >
                             {isLoading ? 'Please wait...' : (isSignupMode ? 'Sign Up' : 'Log In')}
                         </button>
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-gray-300">
+                        <p className="text-premium-600">
                             {isSignupMode ? 'Already have an account?' : "Don't have an account?"}{' '}
                             <Link
                                 to={isSignupMode ? '/login' : '/login?mode=signup'}
-                                className="text-purple-300 hover:text-purple-200 font-semibold"
+                                className="text-primary-600 hover:text-primary-700 font-semibold transition-colors"
                             >
                                 {isSignupMode ? 'Log In' : 'Sign Up'}
                             </Link>
