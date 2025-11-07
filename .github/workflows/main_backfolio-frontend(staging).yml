@@ -38,8 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webapp-dist
-          path: |
-            dist
+          path: dist/
 
       # 🚫 Opting Out of Oryx Build
       # If you prefer to disable the Oryx build process during deployment, follow these steps:
@@ -73,5 +72,5 @@ jobs:
         with:
           app-name: 'backfolio-frontend'
           slot-name: 'staging'
-          package: 'dist'
+          package: '.'
           
