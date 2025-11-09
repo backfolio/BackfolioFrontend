@@ -142,7 +142,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
     // Sync nodes with strategy changes (for rule assignments and fallback status)
     React.useEffect(() => {
         console.log('[Sync Effect] Running with edges:', edges.length, 'allocation_rules:', hook.strategy.allocation_rules?.length);
-        
+
         setNodes((nds) => {
             const incomingMap = new Map<string, number>();
             const outgoingMap = new Map<string, number>();
@@ -161,21 +161,21 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
             nds.forEach((node) => {
                 const hasIncoming = (incomingMap.get(node.id) || 0) > 0;
                 const hasOutgoing = (outgoingMap.get(node.id) || 0) > 0;
-                
+
                 if (!hasIncoming && hasOutgoing && !visited.has(node.id)) {
                     // This is a chain start - traverse the chain
                     const chain: string[] = [];
                     let current = node.id;
-                    
+
                     while (current && !visited.has(current)) {
                         chain.push(current);
                         visited.add(current);
-                        
+
                         // Find next node in chain
                         const edge = edges.find(e => e.source === current);
                         current = edge?.target || '';
                     }
-                    
+
                     if (chain.length > 0) {
                         chains.push(chain);
                     }
@@ -190,7 +190,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
                         (ar) => ar.allocation === nodeId
                     );
                     const hasRules = (allocationRule?.rules || []).length > 0;
-                    
+
                     if (!hasRules) {
                         // First node in chain without rules = fallback
                         fallbackNodes.add(nodeId);
@@ -212,12 +212,12 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
 
                 // Debug: show all nodes with edges
                 if (hasIncoming || hasOutgoing) {
-                    console.log(`[Node] ${node.id}:`, { 
-                        hasIncoming, 
-                        hasOutgoing, 
-                        hasRules, 
+                    console.log(`[Node] ${node.id}:`, {
+                        hasIncoming,
+                        hasOutgoing,
+                        hasRules,
                         assignedRules,
-                        isFallback 
+                        isFallback
                     });
                 }
 
