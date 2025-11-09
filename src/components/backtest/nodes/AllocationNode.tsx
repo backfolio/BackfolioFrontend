@@ -1,0 +1,313 @@
+import { memo, useState } from 'react';
+import { Handle, Position, NodeProps } from 'reactflow';
+import { Allocation } from '../../../types/strategy';
+
+interface AllocationNodeData {
+    name: string;
+    allocation: Allocation;
+    isFallback: boolean;
+    assignedRules: string[];
+    rebalancingFrequency?: string;
+    onUpdate: (allocation: Allocation, rebalancingFrequency?: string) => void;
+    onDelete: () => void;
+    onManageRules: () => void;
+    onRename: (newName: string) => void;
+}
+
+export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNodeData>) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [editedName, setEditedName] = useState(data.name);
+    const [editedAllocation, setEditedAllocation] = useState<Allocation>(data.allocation);
+    const [rebalancingEnabled, setRebalancingEnabled] = useState(!!data.rebalancingFrequency);
+    const [rebalancingFrequency, setRebalancingFrequency] = useState(data.rebalancingFrequency || 'monthly');
+
+    const total = Object.values(editedAllocation).reduce((sum, val) => sum + val, 0);
+    const isValid = Math.abs(total - 1.0) < 0.001;
+
+    const handleSave = () => {
+        if (isValid) {
+            data.onUpdate(
+                editedAllocation,
+                rebalancingEnabled ? rebalancingFrequency : undefined
+            );
+            setIsEditing(false);
+        }
+    };
+
+    const handleSaveName = () => {
+        if (editedName.trim() && editedName !== data.name) {
+            data.onRename(editedName.trim());
+        }
+        setIsEditingName(false);
+    };
+
+    const handleAddAsset = () => {
+        setEditedAllocation({
+            ...editedAllocation,
+            '': 0,
+        });
+    };
+
+    const handleRemoveAsset = (symbol: string) => {
+        const newAllocation = { ...editedAllocation };
+        delete newAllocation[symbol];
+        setEditedAllocation(newAllocation);
+    };
+
+    const handleUpdateSymbol = (oldSymbol: string, newSymbol: string) => {
+        const newAllocation: Allocation = {};
+        Object.keys(editedAllocation).forEach((key) => {
+            if (key === oldSymbol) {
+                newAllocation[newSymbol] = editedAllocation[key];
+            } else {
+                newAllocation[key] = editedAllocation[key];
+            }
+        });
+        setEditedAllocation(newAllocation);
+    };
+
+    const handleUpdateWeight = (symbol: string, weight: number) => {
+        setEditedAllocation({
+            ...editedAllocation,
+            [symbol]: weight / 100,
+        });
+    };
+
+    return (
+        <div
+            className={`
+                bg-white rounded-xl shadow-lg border-2 transition-all duration-200 min-w-[280px]
+                ${selected ? 'border-purple-500 shadow-purple-200' : 'border-slate-200'}
+                ${data.isFallback ? 'ring-2 ring-emerald-400' : ''}
+            `}
+        >
+            {/* Handles for connections */}
+            <Handle
+                type="target"
+                position={Position.Top}
+                className="!bg-purple-500 !w-3 !h-3 !border-2 !border-white"
+            />
+            <Handle
+                type="source"
+                position={Position.Bottom}
+                className="!bg-purple-500 !w-3 !h-3 !border-2 !border-white"
+            />
+
+            {/* Header */}
+            <div className={`px-4 py-3 border-b border-slate-200 ${data.isFallback ? 'bg-emerald-50' : 'bg-slate-50'}`}>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 flex-1">
+                        <div className={`w-2 h-2 rounded-full ${data.isFallback ? 'bg-emerald-500' : 'bg-purple-500'}`}></div>
+                        {isEditingName ? (
+                            <input
+                                type="text"
+                                value={editedName}
+                                onChange={(e) => setEditedName(e.target.value)}
+                                onBlur={handleSaveName}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveName();
+                                    if (e.key === 'Escape') {
+                                        setEditedName(data.name);
+                                        setIsEditingName(false);
+                                    }
+                                }}
+                                className="font-bold text-slate-900 text-sm px-1 py-0.5 border border-purple-300 rounded"
+                                autoFocus
+                            />
+                        ) : (
+                            <h3
+                                className="font-bold text-slate-900 text-sm cursor-pointer hover:text-purple-600"
+                                onClick={() => setIsEditingName(true)}
+                                title="Click to edit name"
+                            >
+                                {data.name}
+                            </h3>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => setIsEditing(!isEditing)}
+                            className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            title="Edit allocation"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={data.onDelete}
+                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Delete portfolio"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {data.isFallback ? (
+                    <div className="mt-2 space-y-1">
+                        <div className="text-xs text-emerald-700 font-medium">Fallback Portfolio (end of chain)</div>
+                        <div className="text-xs text-slate-500">No rules can be assigned to fallback</div>
+                    </div>
+                ) : data.assignedRules.length > 0 ? (
+                    <div className="mt-2 space-y-1">
+                        <div className="text-xs font-medium text-slate-600">When to switch TO this portfolio:</div>
+                        {data.assignedRules.map((ruleName) => (
+                            <div key={ruleName} className="flex items-center gap-1 text-xs">
+                                <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                                    {ruleName}
+                                </span>
+                            </div>
+                        ))}
+                        <button
+                            onClick={data.onManageRules}
+                            className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                        >
+                            Manage Rules
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        onClick={data.onManageRules}
+                        className="mt-2 w-full px-2 py-1 text-xs text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-dashed border-slate-300 hover:border-purple-300 rounded transition-colors"
+                    >
+                        + Define Switching Rules
+                    </button>
+                )}
+            </div>
+
+            {/* Body */}
+            <div className="p-4">
+                {isEditing ? (
+                    <div className="space-y-2">
+                        {Object.entries(editedAllocation).map(([symbol, weight]) => (
+                            <div key={symbol} className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={symbol}
+                                    onChange={(e) => handleUpdateSymbol(symbol, e.target.value)}
+                                    placeholder="Symbol"
+                                    className="flex-1 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                />
+                                <input
+                                    type="number"
+                                    value={Math.round(weight * 100)}
+                                    onChange={(e) => handleUpdateWeight(symbol, Number(e.target.value))}
+                                    min="0"
+                                    max="100"
+                                    className="w-16 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                />
+                                <span className="text-xs text-slate-500">%</span>
+                                <button
+                                    onClick={() => handleRemoveAsset(symbol)}
+                                    className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+
+                        <button
+                            onClick={handleAddAsset}
+                            className="w-full mt-2 px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 border border-dashed border-purple-300 rounded transition-colors"
+                        >
+                            + Add Asset
+                        </button>
+
+                        {/* Rebalancing Controls */}
+                        <div className="pt-2 border-t border-slate-200 space-y-2">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={rebalancingEnabled}
+                                    onChange={(e) => setRebalancingEnabled(e.target.checked)}
+                                    className="w-3 h-3 text-purple-600 rounded focus:ring-purple-500"
+                                />
+                                <span className="text-xs font-medium text-slate-700">Enable Rebalancing</span>
+                            </label>
+
+                            {rebalancingEnabled && (
+                                <select
+                                    value={rebalancingFrequency}
+                                    onChange={(e) => setRebalancingFrequency(e.target.value)}
+                                    className="w-full text-xs border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                >
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            )}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                            <span className={`text-xs font-medium ${isValid ? 'text-emerald-600' : 'text-red-600'}`}>
+                                Total: {Math.round(total * 100)}%
+                            </span>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        setEditedAllocation(data.allocation);
+                                        setRebalancingEnabled(!!data.rebalancingFrequency);
+                                        setRebalancingFrequency(data.rebalancingFrequency || 'monthly');
+                                        setIsEditing(false);
+                                    }}
+                                    className="px-3 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={!isValid}
+                                    className="px-3 py-1 text-xs text-white bg-purple-600 hover:bg-purple-700 rounded disabled:bg-slate-300 disabled:cursor-not-allowed"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <div className="space-y-1">
+                            {Object.entries(data.allocation).map(([symbol, weight]) => (
+                                <div key={symbol} className="flex items-center justify-between text-xs">
+                                    <span className="font-medium text-slate-700">{symbol}</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                                                style={{ width: `${weight * 100}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="text-slate-600 font-semibold w-10 text-right">
+                                            {Math.round(weight * 100)}%
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Display rebalancing info */}
+                        {data.rebalancingFrequency && (
+                            <div className="pt-2 border-t border-slate-200">
+                                <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    <span>Rebalances {data.rebalancingFrequency}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+});
+
+AllocationNode.displayName = 'AllocationNode';

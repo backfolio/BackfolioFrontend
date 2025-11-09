@@ -1,101 +1,411 @@
-import { useAuth } from '../context/AuthContext'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import Layout from '../components/Layout'
+import { Send, Plus, MessageSquare, TrendingUp, PieChart, DollarSign, BarChart3, History, Trash2 } from 'lucide-react'
+
+interface Message {
+    id: string
+    type: 'user' | 'assistant'
+    content: string
+    timestamp: Date
+}
+
+interface Conversation {
+    id: string
+    title: string
+    messages: Message[]
+    lastUpdated: Date
+}
+
+const starterQuestions = [
+    {
+        icon: TrendingUp,
+        title: "Analyze my portfolio performance",
+        description: "Get insights on your investment returns and risk metrics",
+        question: "Can you analyze my current portfolio performance and suggest areas for improvement?"
+    },
+    {
+        icon: PieChart,
+        title: "Optimize asset allocation",
+        description: "Review and optimize your current asset allocation strategy",
+        question: "What's the optimal asset allocation for my risk profile and investment goals?"
+    },
+    {
+        icon: DollarSign,
+        title: "Investment strategies",
+        description: "Explore different investment strategies and approaches",
+        question: "What are some proven investment strategies that would work well for my situation?"
+    },
+    {
+        icon: BarChart3,
+        title: "Market analysis",
+        description: "Get current market insights and trends analysis",
+        question: "What are the current market trends I should be aware of for my investments?"
+    }
+]
 
 const AIChat = () => {
-    const { user, logout } = useAuth()
-    const navigate = useNavigate()
+    const [conversations, setConversations] = useState<Conversation[]>([])
+    const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
+    const [message, setMessage] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [showHistory, setShowHistory] = useState(false)
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-    const handleLogout = () => {
-        logout()
-        navigate('/')
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
 
+    useEffect(() => {
+        scrollToBottom()
+    }, [currentConversation?.messages])
+
+    const createNewConversation = () => {
+        const newConversation: Conversation = {
+            id: Date.now().toString(),
+            title: 'New conversation',
+            messages: [],
+            lastUpdated: new Date()
+        }
+        setConversations(prev => [newConversation, ...prev])
+        setCurrentConversation(newConversation)
+        setShowHistory(false)
+    }
+
+    const selectConversation = (conversation: Conversation) => {
+        setCurrentConversation(conversation)
+        setShowHistory(false)
+    }
+
+    const deleteConversation = (conversationId: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        setConversations(prev => prev.filter(c => c.id !== conversationId))
+        if (currentConversation?.id === conversationId) {
+            setCurrentConversation(null)
+        }
+    }
+
+
+
+    const generateTitle = (firstMessage: string) => {
+        return firstMessage.length > 50
+            ? firstMessage.substring(0, 47) + '...'
+            : firstMessage
+    }
+
+    const sendMessage = async (messageText?: string) => {
+        const textToSend = messageText || message.trim()
+        if (!textToSend || isLoading) return
+
+        let conversationToUse = currentConversation
+
+        if (!conversationToUse) {
+            // Create new conversation synchronously
+            const newConversation: Conversation = {
+                id: Date.now().toString(),
+                title: 'New conversation',
+                messages: [],
+                lastUpdated: new Date()
+            }
+            setConversations(prev => [newConversation, ...prev])
+            setCurrentConversation(newConversation)
+            conversationToUse = newConversation
+        }
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            type: 'user',
+            content: textToSend,
+            timestamp: new Date()
+        }
+
+        // Update conversation with user message
+        const updatedConversation = {
+            ...conversationToUse,
+            messages: [...conversationToUse.messages, userMessage],
+            lastUpdated: new Date()
+        }
+
+        // Update title if it's the first message
+        if (conversationToUse.messages.length === 0) {
+            updatedConversation.title = generateTitle(textToSend)
+        }
+
+        setCurrentConversation(updatedConversation)
+        setConversations(prev => prev.map(c =>
+            c.id === conversationToUse.id ? updatedConversation : c
+        ))
+        setMessage('')
+        setIsLoading(true)
+
+        // Simulate AI response
+        setTimeout(() => {
+            const aiMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                type: 'assistant',
+                content: getAIResponse(),
+                timestamp: new Date()
+            }
+
+            const finalConversation = {
+                ...updatedConversation,
+                messages: [...updatedConversation.messages, aiMessage],
+                lastUpdated: new Date()
+            }
+
+            setCurrentConversation(finalConversation)
+            setConversations(prev => prev.map(c =>
+                c.id === conversationToUse.id ? finalConversation : c
+            ))
+            setIsLoading(false)
+        }, 1500)
+    }
+
+    const getAIResponse = (): string => {
+        // Simple response logic - in real app, this would call your AI service
+        const responses = [
+            "I'd be happy to help you with your investment analysis. Based on your portfolio, I can see several opportunities for optimization. Let me break down some key insights for you.",
+            "That's a great question about portfolio diversification. Here are some strategies that could work well for your investment goals and risk tolerance.",
+            "Market conditions are always evolving. Let me provide you with some current insights and how they might impact your investment strategy.",
+            "I can help you analyze your asset allocation. A well-balanced portfolio typically considers your age, risk tolerance, and investment timeline."
+        ]
+        return responses[Math.floor(Math.random() * responses.length)]
+    }
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            sendMessage()
+        }
+    }
+
+    const adjustTextareaHeight = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`
+        }
+    }
+
+    useEffect(() => {
+        adjustTextareaHeight()
+    }, [message])
+
+
+
     return (
-        <div className="min-h-screen bg-gradient-light-subtle flex">
-            {/* Vertical Sidebar Navigation */}
-            <aside className="w-64 glass-premium-solid border-r border-premium-200 fixed left-0 top-0 h-screen flex flex-col">
-                {/* Logo */}
-                <div className="p-6 border-b border-premium-200">
-                    <div className="text-2xl font-bold text-premium-900">
-                        Back<span className="text-primary-600">folio</span>
-                    </div>
-                </div>
-
-                {/* Navigation Links */}
-                <nav className="flex-1 p-4 space-y-2">
-                    <Link
-                        to="/dashboard"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-premium-700 hover:bg-premium-100 font-medium transition-all"
-                    >
-                        <span className="text-xl">📊</span>
-                        <span>Dashboard</span>
-                    </Link>
-                    <Link
-                        to="/portfolios"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-premium-700 hover:bg-premium-100 font-medium transition-all"
-                    >
-                        <span className="text-xl">💼</span>
-                        <span>Portfolios</span>
-                    </Link>
-                    <Link
-                        to="/backtest"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-premium-700 hover:bg-premium-100 font-medium transition-all"
-                    >
-                        <span className="text-xl">🔬</span>
-                        <span>Backtest</span>
-                    </Link>
-                    <Link
-                        to="/ai-chat"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-50 text-primary-600 font-medium transition-all"
-                    >
-                        <span className="text-xl">🤖</span>
-                        <span>AI Chat</span>
-                    </Link>
-                    <Link
-                        to="/settings"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-premium-700 hover:bg-premium-100 font-medium transition-all"
-                    >
-                        <span className="text-xl">⚙️</span>
-                        <span>Settings</span>
-                    </Link>
-                </nav>
-
-                {/* User Section at Bottom */}
-                <div className="p-4 border-t border-premium-200">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-purple-light flex items-center justify-center text-white font-semibold">
-                            {user?.email?.charAt(0).toUpperCase()}
+        <Layout>
+            <div className="flex h-full max-h-[calc(100vh-2rem)] relative">
+                {/* Conversation History Sidebar */}
+                <div className={`${showHistory ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-16 z-50 w-80 glass-premium-solid border-r border-slate-200 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:inset-y-auto lg:left-0 lg:z-auto`}>
+                    <div className="flex flex-col h-full">
+                        {/* Header */}
+                        <div className="p-6 border-b border-slate-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-semibold text-premium-900">Conversations</h2>
+                                <button
+                                    onClick={createNewConversation}
+                                    className="p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors"
+                                    title="New conversation"
+                                >
+                                    <Plus size={20} />
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-premium-900 truncate">{user?.email}</p>
-                            <p className="text-xs text-premium-600">Premium</p>
+
+                        {/* Conversations List */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                            {conversations.length === 0 ? (
+                                <div className="text-center py-8 text-premium-500">
+                                    <MessageSquare className="mx-auto mb-3 opacity-50" size={32} />
+                                    <p className="text-sm">No conversations yet</p>
+                                    <p className="text-xs text-premium-400 mt-1">Start chatting to see your history</p>
+                                </div>
+                            ) : (
+                                conversations.map((conversation) => (
+                                    <div
+                                        key={conversation.id}
+                                        onClick={() => selectConversation(conversation)}
+                                        className={`group flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${currentConversation?.id === conversation.id
+                                            ? 'bg-primary-50 border border-primary-200'
+                                            : 'hover:bg-slate-50'
+                                            }`}
+                                    >
+                                        <MessageSquare size={16} className="mt-0.5 text-primary-600 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-premium-900 truncate">
+                                                {conversation.title}
+                                            </p>
+                                            <p className="text-xs text-premium-500 mt-1">
+                                                {conversation.messages.length} messages
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={(e) => deleteConversation(conversation.id, e)}
+                                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-danger-50 text-danger-500 transition-all duration-200"
+                                            title="Delete conversation"
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-premium-300 text-premium-700 hover:bg-premium-100 font-medium transition-all"
-                    >
-                        <span>🚪</span>
-                        <span>Logout</span>
-                    </button>
                 </div>
-            </aside>
 
-            {/* Main Content Area */}
-            <main className="flex-1 ml-64 p-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="glass-premium-solid rounded-3xl p-12 shadow-premium-xl text-center">
-                        <div className="text-6xl mb-6">🤖</div>
-                        <h1 className="text-4xl md:text-5xl font-bold text-premium-900 mb-4 tracking-tight">
-                            Hello - AI Chat Page
-                        </h1>
-                        <p className="text-xl text-primary-600 font-medium">
-                            Coming soon: Chat with AI about your portfolio and investments
-                        </p>
+                {/* Main Chat Area */}
+                <div className="flex-1 flex flex-col min-w-0">
+                    {/* Header */}
+                    <div className="p-6 border-b border-slate-200 glass-premium-solid">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setShowHistory(!showHistory)}
+                                    className="lg:hidden p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors"
+                                >
+                                    <History size={20} />
+                                </button>
+                                <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center">
+                                    <MessageSquare className="text-white" size={20} />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-semibold text-premium-900">
+                                        {currentConversation?.title || 'Backfolio AI Assistant'}
+                                    </h1>
+                                    <p className="text-sm text-primary-600">
+                                        Your intelligent investment advisor
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Messages Area */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        {!currentConversation || currentConversation.messages.length === 0 ? (
+                            <div className="max-w-2xl mx-auto">
+                                {/* Welcome Message */}
+                                <div className="text-center mb-12">
+                                    <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto mb-6 flex items-center justify-center">
+                                        <MessageSquare className="text-white" size={24} />
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-premium-900 mb-3">
+                                        What can I help with?
+                                    </h2>
+                                    <p className="text-lg text-premium-600">
+                                        Ask me anything about your investments, portfolio analysis, or market insights
+                                    </p>
+                                </div>
+
+                                {/* Starter Questions */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {starterQuestions.map((item, index) => {
+                                        const IconComponent = item.icon
+                                        return (
+                                            <button
+                                                key={index}
+                                                onClick={() => sendMessage(item.question)}
+                                                className="card-investment p-6 text-left hover-investment group"
+                                            >
+                                                <div className="flex items-start gap-4">
+                                                    <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-200 transition-colors">
+                                                        <IconComponent size={20} className="text-primary-600" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold text-premium-900 mb-2">
+                                                            {item.title}
+                                                        </h3>
+                                                        <p className="text-sm text-premium-600">
+                                                            {item.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ) : (
+                            /* Messages */
+                            currentConversation.messages.map((msg) => (
+                                <div
+                                    key={msg.id}
+                                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                >
+                                    <div
+                                        className={`max-w-[70%] ${msg.type === 'user'
+                                            ? 'bg-gradient-primary text-white rounded-2xl rounded-br-md'
+                                            : 'glass-premium-solid rounded-2xl rounded-bl-md border border-slate-200'
+                                            } p-4`}
+                                    >
+                                        <p className={`${msg.type === 'user' ? 'text-white' : 'text-premium-900'} leading-relaxed`}>
+                                            {msg.content}
+                                        </p>
+                                        <p className={`text-xs mt-2 ${msg.type === 'user' ? 'text-primary-100' : 'text-premium-500'}`}>
+                                            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+
+                        {/* Loading Message */}
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="glass-premium-solid rounded-2xl rounded-bl-md border border-slate-200 p-4">
+                                    <div className="flex items-center gap-2 text-primary-600">
+                                        <div className="flex gap-1">
+                                            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
+                                            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                        </div>
+                                        <span className="text-sm">AI is thinking...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* Input Area */}
+                    <div className="p-6 border-t border-slate-200 glass-premium-solid">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="relative">
+                                <textarea
+                                    ref={textareaRef}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    placeholder="Ask me anything about your investments..."
+                                    className="form-investment w-full p-4 pr-12 resize-none min-h-[52px] max-h-[120px] text-premium-900 placeholder-premium-500"
+                                    rows={1}
+                                    disabled={isLoading}
+                                />
+                                <button
+                                    onClick={() => sendMessage()}
+                                    disabled={!message.trim() || isLoading}
+                                    className="absolute right-3 bottom-3 p-2 rounded-lg bg-gradient-primary text-white disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-interactive-hover transition-all duration-200"
+                                >
+                                    <Send size={16} />
+                                </button>
+                            </div>
+                            <p className="text-xs text-premium-500 mt-2 text-center">
+                                Press Enter to send, Shift + Enter for new line
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </main>
-        </div>
+
+                {/* Overlay for mobile history */}
+                {showHistory && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+                        onClick={() => setShowHistory(false)}
+                    />
+                )}
+            </div>
+        </Layout>
     )
 }
 

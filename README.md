@@ -1,6 +1,6 @@
 # Backfolio Frontend
 
-A modern, elegant web application built with React, Vite, and TypeScript, designed for deployment on Azure Web App.
+A modern, AI-powered financial platform built with React, Vite, and TypeScript. Features a stunning Xtract-inspired design system with intelligent portfolio analysis capabilities.
 
 ## 🎨 Tech Stack
 
@@ -13,13 +13,14 @@ A modern, elegant web application built with React, Vite, and TypeScript, design
 
 ## 🚀 Features
 
-- ✨ Elegant landing page with modern design
-- 🔐 Authentication flow (Login/Signup)
-- 🛡️ Protected routes
-- 📱 Fully responsive design
-- ⚡ Optimized for Azure deployment
-- 🔒 Security headers configured
-- 🌐 Client-side routing support
+- 🎨 **Xtract-Inspired Design**: Modern, AI-focused aesthetic with glass morphism
+- 🔬 **Portfolio Backtesting**: Advanced historical analysis with AI insights
+- 🤖 **AI-Powered Interface**: Intelligent features with gradient designs
+- 🔐 **Secure Authentication**: Protected routes with elegant login flow
+- � **Professional Analytics**: Financial data visualization with modern styling
+- 📱 **Fully Responsive**: Optimized for all device sizes
+- ⚡ **Lightning Fast**: Vite-powered with smooth animations
+- ☁️ **Azure Ready**: Optimized for cloud deployment
 
 ## 📋 Prerequisites
 
@@ -221,14 +222,31 @@ Currently using **mock authentication** for demonstration. In production, integr
 - Firebase Authentication
 - Custom backend API
 
-## 🎨 Styling
+## 🎨 Design System
 
-Built with **Tailwind CSS** for rapid, elegant UI development:
-- Gradient backgrounds
-- Glassmorphism effects
-- Smooth transitions
-- Responsive design
-- Custom color palette (Purple theme)
+Built with **Xtract-Inspired Design System** using Tailwind CSS:
+
+### Visual Features
+- **Modern Color Palette**: Sky blue gradients with AI purple accents
+- **Glass Morphism**: Frosted glass effects with backdrop blur
+- **Smooth Animations**: 300ms cubic-bezier transitions
+- **Enhanced Typography**: Inter font with gradient text support
+- **Professional Cards**: Elevated shadows with rounded corners
+
+### Component Library
+- **Glass Cards**: Backdrop blur with subtle borders
+- **Gradient Buttons**: Primary actions with hover effects  
+- **AI Components**: Purple gradient treatments for smart features
+- **Modern Navigation**: Wider sidebar with animated icons
+- **Status Indicators**: Color-coded feedback systems
+
+### Layout System
+- **Generous Spacing**: 20px base grid for breathing room
+- **Flexible Grid**: Responsive design with consistent gaps
+- **Visual Hierarchy**: Clear content organization
+- **Interactive States**: Hover, focus, and loading animations
+
+See [XTRACT_DESIGN_TRANSFORMATION.md](./XTRACT_DESIGN_TRANSFORMATION.md) for complete design documentation.
 
 ## 📝 Available Scripts
 
