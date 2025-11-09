@@ -38,6 +38,8 @@ jobs:
         run: |
           cp server.js dist/
           cp package-server.json dist/package.json
+          cd dist
+          npm install --production
 
       # Upload the production build (Vite outputs to `dist` by default)
       - name: Upload artifact for deployment jobs
@@ -79,4 +81,7 @@ jobs:
           app-name: 'backfolio-frontend'
           slot-name: 'staging'
           package: '.'
+          startup-command: 'node server.js'
+        env:
+          SCM_DO_BUILD_DURING_DEPLOYMENT: false
           
