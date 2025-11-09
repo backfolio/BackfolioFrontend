@@ -1,20 +1,21 @@
-import { memo, useState } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { useState } from 'react';
+import { NodeProps, Handle, Position } from 'reactflow';
 import { Allocation } from '../../../types/strategy';
+import { Trash2, Edit2, Check, X, GripVertical } from 'lucide-react';
 
 interface AllocationNodeData {
     name: string;
     allocation: Allocation;
-    isFallback: boolean;
-    assignedRules: string[];
-    rebalancingFrequency?: string;
-    onUpdate: (allocation: Allocation, rebalancingFrequency?: string) => void;
-    onDelete: () => void;
-    onManageRules: () => void;
-    onRename: (newName: string) => void;
+    onUpdate?: (allocation: Allocation, rebalancingFrequency?: string) => void;
+    onRename?: (newName: string) => void;
+    onDelete?: () => void;
+    onManageRules?: () => void;
+    assignedRules?: string[];
+    isFallback?: boolean;
+    rebalancingFrequency?: 'monthly' | 'quarterly';
 }
 
-export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNodeData>) => {
+export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(data.name);
@@ -25,8 +26,16 @@ export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNode
     const total = Object.values(editedAllocation).reduce((sum, val) => sum + val, 0);
     const isValid = Math.abs(total - 1.0) < 0.001;
 
+    // Define handles for all 4 sides
+    const handlePositions = [
+        { position: Position.Top, name: 'top' },
+        { position: Position.Right, name: 'right' },
+        { position: Position.Bottom, name: 'bottom' },
+        { position: Position.Left, name: 'left' },
+    ];
+
     const handleSave = () => {
-        if (isValid) {
+        if (isValid && data.onUpdate) {
             data.onUpdate(
                 editedAllocation,
                 rebalancingEnabled ? rebalancingFrequency : undefined
@@ -36,7 +45,7 @@ export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNode
     };
 
     const handleSaveName = () => {
-        if (editedName.trim() && editedName !== data.name) {
+        if (editedName.trim() && editedName !== data.name && data.onRename) {
             data.onRename(editedName.trim());
         }
         setIsEditingName(false);
@@ -82,17 +91,18 @@ export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNode
                 ${data.isFallback ? 'ring-2 ring-emerald-400' : ''}
             `}
         >
-            {/* Handles for connections */}
-            <Handle
-                type="target"
-                position={Position.Top}
-                className="!bg-purple-500 !w-3 !h-3 !border-2 !border-white"
-            />
-            <Handle
-                type="source"
-                position={Position.Bottom}
-                className="!bg-purple-500 !w-3 !h-3 !border-2 !border-white"
-            />
+            {/* Render ONE handle per side - React Flow will handle bidirectional connections */}
+            {handlePositions.map(({ position, name }) => (
+                <Handle
+                    key={name}
+                    type="source"
+                    position={position}
+                    id={`${data.name}-${name}`}
+                    className="!bg-purple-500 !w-3 !h-3 !border-2 !border-white"
+                    isConnectableStart={true}
+                    isConnectableEnd={true}
+                />
+            ))}
 
             {/* Header */}
             <div className={`px-4 py-3 border-b border-slate-200 ${data.isFallback ? 'bg-emerald-50' : 'bg-slate-50'}`}>
@@ -148,13 +158,19 @@ export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNode
                 </div>
                 {data.isFallback ? (
                     <div className="mt-2 space-y-1">
-                        <div className="text-xs text-emerald-700 font-medium">Fallback Portfolio (end of chain)</div>
-                        <div className="text-xs text-slate-500">No rules can be assigned to fallback</div>
+                        <div className="text-xs text-emerald-700 font-medium">Fallback Portfolio</div>
+                        <div className="text-xs text-slate-500">First in chain, no rules. Add rules to activate switching.</div>
+                        <button
+                            onClick={data.onManageRules}
+                            className="mt-1 w-full px-2 py-1 text-xs text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-dashed border-slate-300 hover:border-purple-300 rounded transition-colors"
+                        >
+                            + Define Switching Rules
+                        </button>
                     </div>
-                ) : data.assignedRules.length > 0 ? (
+                ) : (data.assignedRules?.length ?? 0) > 0 ? (
                     <div className="mt-2 space-y-1">
                         <div className="text-xs font-medium text-slate-600">When to switch TO this portfolio:</div>
-                        {data.assignedRules.map((ruleName) => (
+                        {data.assignedRules?.map((ruleName) => (
                             <div key={ruleName} className="flex items-center gap-1 text-xs">
                                 <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
                                     {ruleName}
@@ -233,7 +249,7 @@ export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNode
                             {rebalancingEnabled && (
                                 <select
                                     value={rebalancingFrequency}
-                                    onChange={(e) => setRebalancingFrequency(e.target.value)}
+                                    onChange={(e) => setRebalancingFrequency(e.target.value as 'monthly' | 'quarterly')}
                                     className="w-full text-xs border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 >
                                     <option value="daily">Daily</option>
@@ -308,6 +324,6 @@ export const AllocationNode = memo(({ data, selected }: NodeProps<AllocationNode
             </div>
         </div>
     );
-});
+};
 
 AllocationNode.displayName = 'AllocationNode';
