@@ -30,19 +30,19 @@ const Layout = ({ children }: LayoutProps) => {
     ]
 
     return (
-        <div className="min-h-screen bg-black flex">
+        <div className="min-h-screen bg-white flex">
             {/* Vertical Sidebar Navigation */}
-            <aside className={`${isExpanded ? 'w-64' : 'w-16'} bg-black border-r border-white/[0.08] fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ease-in-out overflow-hidden backdrop-blur-2xl`}>
+            <aside className={`${isExpanded ? 'w-64' : 'w-16'} bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ease-in-out overflow-hidden shadow-sm`}>
                 {/* Logo and Toggle */}
-                <div className="p-4 border-b border-white/[0.08] flex items-center">
+                <div className="p-4 border-b border-gray-200 flex items-center">
                     {isExpanded ? (
                         <div className="flex items-center justify-between w-full">
-                            <Link to="/" className="text-2xl font-bold text-white hover:text-white/90 transition-colors tracking-tight">
+                            <Link to="/" className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition-colors tracking-tight">
                                 Back<span className="bg-gradient-to-r from-primary-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">folio</span>
                             </Link>
                             <button
                                 onClick={() => setIsExpanded(!isExpanded)}
-                                className="p-1 rounded-md hover:bg-white/5 transition-all duration-200 text-white/60 hover:text-white"
+                                className="p-1 rounded-md hover:bg-gray-100 transition-all duration-200 text-gray-500 hover:text-gray-900"
                             >
                                 <X size={20} />
                             </button>
@@ -54,7 +54,7 @@ const Layout = ({ children }: LayoutProps) => {
                             </Link>
                             <button
                                 onClick={() => setIsExpanded(!isExpanded)}
-                                className="p-1 rounded-md hover:bg-white/5 transition-all duration-200 text-white/60 hover:text-white"
+                                className="p-1 rounded-md hover:bg-gray-100 transition-all duration-200 text-gray-500 hover:text-gray-900"
                             >
                                 <Menu size={16} />
                             </button>
@@ -74,10 +74,10 @@ const Layout = ({ children }: LayoutProps) => {
                                 key={link.path}
                                 to={link.path}
                                 className={`flex items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center px-2'} py-3 rounded-lg font-medium transition-all duration-300 ease-in-out relative overflow-hidden group ${isActive && !isAIChat
-                                    ? 'text-white bg-white/[0.05] border-white/[0.15] border'
+                                    ? 'text-gray-900 bg-gray-100 border-gray-200 border'
                                     : isAIChat
                                         ? 'text-white bg-gradient-to-br from-violet-500/90 via-purple-600/85 to-fuchsia-500/80 hover:from-violet-600/95 hover:via-purple-700/90 hover:to-fuchsia-600/85 border border-violet-400/60 hover:border-fuchsia-400/70 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 backdrop-blur-sm transform hover:scale-[1.02]'
-                                        : 'text-white/70 hover:text-white hover:bg-white/[0.03]'
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                     }`}
                                 title={!isExpanded ? link.label : ''}
                             >
@@ -128,13 +128,13 @@ const Layout = ({ children }: LayoutProps) => {
                 </nav>
 
                 {/* User Section at Bottom */}
-                <div className="p-2 border-t border-white/[0.08]">
+                <div className="p-2 border-t border-gray-200">
                     {/* Settings Link */}
                     <Link
                         to="/settings"
                         className={`flex items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center px-2'} py-3 rounded-lg transition-all duration-300 ease-in-out font-medium mb-2 ${isActivePage('/settings')
-                            ? 'text-white bg-white/[0.05] border-white/[0.15] border'
-                            : 'text-white/70 hover:text-white hover:bg-white/[0.03]'
+                            ? 'text-gray-900 bg-gray-100 border-gray-200 border'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                             }`}
                         title={!isExpanded ? 'Settings' : ''}
                     >
@@ -146,11 +146,11 @@ const Layout = ({ children }: LayoutProps) => {
                             ? 'opacity-100 translate-x-0 max-w-full'
                             : 'opacity-0 -translate-x-2 max-w-0 overflow-hidden'
                             }`}>
-                            <p className={`text-sm font-bold tracking-tight truncate transition-all duration-300 ease-in-out ${isActivePage('/settings') ? 'text-white' : 'text-white/90'
+                            <p className={`text-sm font-bold tracking-tight truncate transition-all duration-300 ease-in-out ${isActivePage('/settings') ? 'text-gray-900' : 'text-gray-700'
                                 }`}>
                                 {user?.email}
                             </p>
-                            <p className={`text-xs font-semibold tracking-tight transition-all duration-300 ease-in-out ${isActivePage('/settings') ? 'text-white/60' : 'text-white/60'
+                            <p className={`text-xs font-semibold tracking-tight transition-all duration-300 ease-in-out ${isActivePage('/settings') ? 'text-gray-500' : 'text-gray-500'
                                 }`}>
                                 Professional
                             </p>
@@ -159,7 +159,7 @@ const Layout = ({ children }: LayoutProps) => {
                         <Settings
                             size={16}
                             className={`transition-all duration-300 ease-in-out ${isExpanded
-                                ? `opacity-100 translate-x-0 ${isActivePage('/settings') ? 'text-white/60' : 'text-white/40'}`
+                                ? `opacity-100 translate-x-0 ${isActivePage('/settings') ? 'text-gray-500' : 'text-gray-400'}`
                                 : 'opacity-0 -translate-x-2 max-w-0 overflow-hidden'
                                 }`}
                         />
@@ -168,7 +168,7 @@ const Layout = ({ children }: LayoutProps) => {
                     {/* Logout Button */}
                     <button
                         onClick={handleLogout}
-                        className={`bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.05] rounded-lg w-full py-2 text-sm font-semibold tracking-tight text-white/70 hover:text-white flex items-center justify-center transition-all duration-300 ease-in-out ${isExpanded ? 'gap-2' : ''}`}
+                        className={`bg-gray-50 border border-gray-200 hover:border-gray-300 hover:bg-gray-100 rounded-lg w-full py-2 text-sm font-semibold tracking-tight text-gray-600 hover:text-gray-900 flex items-center justify-center transition-all duration-300 ease-in-out ${isExpanded ? 'gap-2' : ''}`}
                         title={!isExpanded ? 'Sign Out' : ''}
                     >
                         <LogOut size={16} className="transition-transform duration-200 ease-in-out" />
@@ -185,7 +185,7 @@ const Layout = ({ children }: LayoutProps) => {
             </aside>
 
             {/* Main Content Area */}
-            <main className={`flex-1 ${isExpanded ? 'ml-64' : 'ml-16'} p-8 bg-black transition-all duration-300 ease-in-out`}>
+            <main className={`flex-1 ${isExpanded ? 'ml-64' : 'ml-16'} p-8 bg-white transition-all duration-300 ease-in-out`}>
                 {children}
             </main>
         </div>

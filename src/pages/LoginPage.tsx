@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import LoadingTransition from '../components/LoadingTransition'
 
 const LoginPage = () => {
     const [searchParams] = useSearchParams()
@@ -11,6 +12,7 @@ const LoginPage = () => {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [showLoadingTransition, setShowLoadingTransition] = useState(false)
 
     const { login, signup } = useAuth()
     const navigate = useNavigate()
@@ -32,14 +34,20 @@ const LoginPage = () => {
                 }
                 const success = await signup(email, password)
                 if (success) {
-                    navigate(redirectTo)
+                    setShowLoadingTransition(true)
+                    setTimeout(() => {
+                        navigate(redirectTo)
+                    }, 2000) // 2 second delay for satisfying transition
                 } else {
                     setError('Signup failed. Please try again.')
                 }
             } else {
                 const success = await login(email, password)
                 if (success) {
-                    navigate(redirectTo)
+                    setShowLoadingTransition(true)
+                    setTimeout(() => {
+                        navigate(redirectTo)
+                    }, 2000) // 2 second delay for satisfying transition
                 } else {
                     setError('Invalid email or password')
                 }
@@ -49,6 +57,11 @@ const LoginPage = () => {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    // Show loading transition screen
+    if (showLoadingTransition) {
+        return <LoadingTransition message={isSignupMode ? 'Setting up your account...' : 'Preparing your dashboard...'} />
     }
 
     return (
