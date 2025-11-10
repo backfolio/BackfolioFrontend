@@ -135,7 +135,7 @@ export const useBacktestState = () => {
                 // Use correct API endpoint path based on environment
                 const apiBase = window.location.hostname === 'localhost'
                     ? 'http://localhost:8000'
-                    : 'https://backfolio-backend.azurewebsites.net'
+                    : 'https://backfolio-backend-dtf4azfmgqh6d4b3.canadacentral-01.azurewebsites.net'
                 const response = await fetch(`${apiBase}/api/v1/backtest/examples`)
                 if (!response.ok) {
                     throw new Error('Failed to load examples')
@@ -278,7 +278,7 @@ export const useBacktestState = () => {
             // Use correct API endpoint path
             const apiBase = window.location.hostname === 'localhost'
                 ? 'http://localhost:8000'
-                : 'https://backfolio-backend.azurewebsites.net'
+                : 'https://backfolio-backend-dtf4azfmgqh6d4b3.canadacentral-01.azurewebsites.net'
 
             const response = await fetch(`${apiBase}/api/v1/backtest`, {
                 method: 'POST',

@@ -61,7 +61,7 @@ const Backtest = () => {
             // Use correct API endpoint path
             const apiBase = window.location.hostname === 'localhost'
                 ? 'http://localhost:8000'
-                : 'https://backfolio-backend.azurewebsites.net'
+                : 'https://backfolio-backend-dtf4azfmgqh6d4b3.canadacentral-01.azurewebsites.net'
 
             // Run all backtests in parallel
             const responses = await Promise.all(
