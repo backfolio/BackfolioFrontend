@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import { Allocation } from '../../../types/strategy';
-import { Trash2, Edit2, Check, X, GripVertical } from 'lucide-react';
 
 interface AllocationNodeData {
     name: string;
