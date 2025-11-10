@@ -33,9 +33,10 @@ const edgeTypes = {
 
 interface StrategyCanvasProps {
     hook: ReturnType<typeof useTacticalStrategy>;
+    onEdgesChange?: (edges: Array<{ source: string; target: string }>) => void;
 }
 
-export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
+export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesChange: notifyEdgesChange }) => {
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -47,6 +48,14 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
     const [showJsonEditor, setShowJsonEditor] = useState(false);
     const [showSummary, setShowSummary] = useState(false);
     const [selectedAllocationForRule, setSelectedAllocationForRule] = useState<string | null>(null);
+
+    // Notify parent of edge changes for multi-strategy detection
+    React.useEffect(() => {
+        if (notifyEdgesChange) {
+            const simpleEdges = edges.map(e => ({ source: e.source, target: e.target }));
+            notifyEdgesChange(simpleEdges);
+        }
+    }, [edges, notifyEdgesChange]);
 
     // Initialize nodes from strategy allocations
     React.useEffect(() => {
@@ -374,7 +383,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
     };
 
     return (
-        <div className="h-screen w-full" ref={reactFlowWrapper}>
+        <div className="h-screen w-full bg-slate-100" ref={reactFlowWrapper}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -673,6 +682,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook }) => {
                 onSave={(updatedStrategy) => {
                     hook.updateStrategy(updatedStrategy);
                 }}
+                strategyChains={hook.detectStrategyChains(edges.map(e => ({ source: e.source, target: e.target })))}
             />
         </div>
     );

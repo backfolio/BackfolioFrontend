@@ -418,29 +418,115 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
         }
     }, [dslText]);
 
-    // Build backtest request for API
-    const buildBacktestRequests = useCallback(() => {
-        const config: any = {
-            start_date: strategy.start_date,
-            end_date: strategy.end_date,
-            initial_capital: strategy.initial_capital
-        };
+    // Helper to detect separate strategy chains (linked-lists + orphan nodes)
+    // Accepts optional edges from canvas to build accurate chains
+    const detectStrategyChains = useCallback((edges?: Array<{ source: string; target: string }>) => {
+        const allocationNames = Object.keys(strategy.allocations);
+        const visited = new Set<string>();
+        const chains: string[][] = [];
 
-        // Convert AllocationWithRebalancing back to simple Allocation for API
-        const simpleAllocations: { [name: string]: Allocation } = {};
-        Object.entries(strategy.allocations).forEach(([name, allocationWithRebalancing]) => {
-            simpleAllocations[name] = allocationWithRebalancing.allocation;
+        if (!edges || edges.length === 0) {
+            // No edges provided - treat each allocation as separate strategy
+            allocationNames.forEach(name => {
+                chains.push([name]);
+            });
+            return chains;
+        }
+
+        // Build adjacency map from edges
+        const outgoingMap = new Map<string, string>(); // source -> target (1:1 for linked-list)
+        const incomingMap = new Map<string, string>(); // target -> source
+
+        edges.forEach(edge => {
+            outgoingMap.set(edge.source, edge.target);
+            incomingMap.set(edge.target, edge.source);
         });
 
-        return [{
-            strategy: {
-                allocations: simpleAllocations,
-                fallback_allocation: strategy.fallback_allocation,
-                switching_logic: strategy.switching_logic
-            },
-            config
-        }];
+        // Find chain starts (nodes with no incoming edges)
+        const chainStarts = allocationNames.filter(name => !incomingMap.has(name));
+
+        // Build chains from each start
+        chainStarts.forEach(startNode => {
+            if (visited.has(startNode)) return;
+
+            const chain: string[] = [];
+            let current: string | undefined = startNode;
+
+            while (current && !visited.has(current)) {
+                chain.push(current);
+                visited.add(current);
+                current = outgoingMap.get(current);
+            }
+
+            if (chain.length > 0) {
+                chains.push(chain);
+            }
+        });
+
+        // Handle any orphan nodes that weren't visited (isolated nodes)
+        allocationNames.forEach(name => {
+            if (!visited.has(name)) {
+                chains.push([name]);
+                visited.add(name);
+            }
+        });
+
+        return chains;
     }, [strategy]);
+
+    // Build backtest requests for API - one per strategy chain
+    const buildBacktestRequests = useCallback((edges?: Array<{ source: string; target: string }>) => {
+        const chains = detectStrategyChains(edges);
+
+        return chains.map((chain, index) => {
+            const config: any = {
+                start_date: strategy.start_date,
+                end_date: strategy.end_date,
+                initial_capital: strategy.initial_capital
+            };
+
+            // Convert AllocationWithRebalancing back to simple Allocation for API
+            // Only include allocations in this chain
+            const simpleAllocations: { [name: string]: Allocation } = {};
+            chain.forEach(name => {
+                if (strategy.allocations[name]) {
+                    simpleAllocations[name] = strategy.allocations[name].allocation;
+                }
+            });
+
+            // Determine fallback for this chain (first allocation without rules, or last in chain)
+            let chainFallback = chain[chain.length - 1]; // Default to last in chain
+            for (const name of chain) {
+                const allocationRule = strategy.allocation_rules?.find(ar => ar.allocation === name);
+                if (!allocationRule || allocationRule.rules.length === 0) {
+                    chainFallback = name;
+                    break;
+                }
+            }
+
+            // Filter switching_logic to only include rules assigned to this chain
+            const chainAllocationRules = (strategy.allocation_rules || []).filter(ar =>
+                chain.includes(ar.allocation)
+            );
+            const chainRuleNames = new Set<string>();
+            chainAllocationRules.forEach(ar => ar.rules.forEach(r => chainRuleNames.add(r)));
+
+            const chainSwitchingLogic = strategy.switching_logic.filter(rule =>
+                chainRuleNames.has(rule.name || '')
+            );
+
+            return {
+                strategy: {
+                    allocations: simpleAllocations,
+                    fallback_allocation: chainFallback,
+                    switching_logic: chainSwitchingLogic,
+                    allocation_rules: chainAllocationRules
+                },
+                config,
+                name: chain.length > 1 ? `Strategy ${index + 1}: ${chain.join(' → ')}` : `Strategy ${index + 1}: ${chain[0]}`
+            };
+        });
+    }, [strategy, detectStrategyChains]);
 
     // Simple validation for UI (no debug logs)
     const isValidForUI = useCallback(() => {
@@ -542,8 +628,9 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
         assignRuleToAllocation,
         unassignRuleFromAllocation,
 
-        // API integration
+        // API integration & multi-strategy support
         buildBacktestRequests,
+        detectStrategyChains,
         isValidStrategy,
         isValidForUI
     };

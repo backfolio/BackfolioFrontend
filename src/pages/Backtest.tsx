@@ -3,7 +3,7 @@ import { useTacticalStrategy } from '../hooks/useTacticalStrategy'
 import { useState, useEffect } from 'react'
 
 // Components
-import BacktestResultsPanel from '../components/backtest/BacktestResultsPanel'
+import BacktestResultsModal from '../components/backtest/BacktestResultsModal'
 import { StrategyCanvas } from '../components/backtest/StrategyCanvas'
 
 const Backtest = () => {
@@ -13,7 +13,8 @@ const Backtest = () => {
         buildBacktestRequests,
     } = tacticalStrategyHook;
 
-    const [result, setResult] = useState<any>(null)
+    const [backtestResults, setBacktestResults] = useState<any[]>([])
+    const [edges, setEdges] = useState<Array<{ source: string; target: string }>>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string>('')
 
@@ -35,69 +36,52 @@ const Backtest = () => {
             return;
         }
 
-        if (!strategy.fallback_allocation || !allocationGroups.includes(strategy.fallback_allocation)) {
-            setError('Please select a fallback allocation');
-            return;
-        }
-
         setLoading(true)
         setError('')
-        setResult(null)
+        setBacktestResults([])
 
         try {
-            const backtestRequests = buildBacktestRequests()
+            // Build separate requests for each strategy chain
+            const backtestRequests = buildBacktestRequests(edges)
 
-            // For now, run the first enabled strategy
-            // Later we can support multiple strategy comparison
-            const backtestRequest = backtestRequests[0]
+            console.log(`Running ${backtestRequests.length} strategy backtest(s)...`)
 
             // Use correct API endpoint path
             const apiBase = window.location.hostname === 'localhost'
                 ? 'http://localhost:8000'
                 : 'https://backfolio-backend.azurewebsites.net'
 
-            const response = await fetch(`${apiBase}/api/v1/backtest`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(backtestRequest)
-            })
+            // Run all backtests in parallel
+            const responses = await Promise.all(
+                backtestRequests.map(async (request) => {
+                    const response = await fetch(`${apiBase}/api/v1/backtest`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(request)
+                    })
 
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || errorData.detail || 'Backtest failed')
-            }
+                    if (!response.ok) {
+                        const errorData = await response.json()
+                        throw new Error(errorData.error || errorData.detail || 'Backtest failed')
+                    }
 
-            const data = await response.json()
+                    const data = await response.json()
 
-            if (!data.success) {
-                throw new Error(data.error || 'Backtest failed')
-            }
+                    if (!data.success) {
+                        throw new Error(data.error || 'Backtest failed')
+                    }
 
-            // Transform API v2.0 response to match UI expectations
-            const apiResult = data.result
-            const transformedResult = {
-                request: backtestRequest,
-                metrics: {
-                    total_return: apiResult.metrics.cumulative_return * 100, // Convert to percentage
-                    annual_return: apiResult.metrics.cagr * 100,
-                    volatility: apiResult.metrics.volatility * 100,
-                    sharpe_ratio: apiResult.metrics.sharpe_ratio,
-                    max_drawdown: apiResult.metrics.max_drawdown * 100,
-                    calmar_ratio: apiResult.metrics.calmar_ratio,
-                    win_rate: apiResult.metrics.win_rate * 100,
-                    profit_factor: undefined // Not available in API v2.0
-                },
-                portfolio_values: Object.entries(apiResult.portfolio_log || {}).map(([date, value]) => ({
-                    date,
-                    value: value as number
-                })),
-                benchmark_values: undefined, // Not available in simple format
-                warnings: apiResult.warnings || []
-            }
+                    return {
+                        ...data,
+                        strategyName: request.name
+                    }
+                })
+            )
 
-            setResult(transformedResult)
+            // Store all results
+            setBacktestResults(responses)
         } catch (error: any) {
             setError(error.message || 'An error occurred while running the backtest')
         } finally {
@@ -113,16 +97,34 @@ const Backtest = () => {
                 <div className="flex-1 bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden relative">
                     <div className="absolute inset-0 pb-24">
                         {/* Canvas Mode - Graph-based Strategy Builder */}
-                        <StrategyCanvas hook={tacticalStrategyHook} />
+                        <StrategyCanvas hook={tacticalStrategyHook} onEdgesChange={setEdges} />
 
-                        {/* Results Overlay (if results exist) */}
-                        {(result || error) && (
-                            <div className="absolute top-4 right-4 w-96 max-h-[calc(100vh-240px)] overflow-y-auto z-40">
-                                <BacktestResultsPanel
-                                    result={result}
-                                    error={error}
-                                    loading={loading}
-                                />
+                        {/* Full Results Modal - shows all strategy results */}
+                        {backtestResults.length > 0 && (
+                            <BacktestResultsModal
+                                results={backtestResults}
+                                onClose={() => setBacktestResults([])}
+                            />
+                        )}
+
+                        {/* Error Display */}
+                        {error && backtestResults.length === 0 && (
+                            <div className="absolute top-4 right-4 w-96 z-40">
+                                <div className="bg-white border border-red-200 rounded-2xl p-6 shadow-2xl">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="flex items-center justify-center w-10 h-10 bg-red-100 rounded-full">
+                                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-red-900">Backtest Failed</h3>
+                                        </div>
+                                    </div>
+                                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                                        <p className="text-red-800 text-sm">{error}</p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -136,7 +138,7 @@ const Backtest = () => {
                                 {loading ? (
                                     <>
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        <span>Analyzing Strategy...</span>
+                                        <span>Analyzing Strategies...</span>
                                     </>
                                 ) : (
                                     <>

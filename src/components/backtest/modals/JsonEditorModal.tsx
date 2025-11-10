@@ -6,6 +6,7 @@ interface JsonEditorModalProps {
     onClose: () => void;
     strategy: StrategyDSL;
     onSave: (strategy: StrategyDSL) => void;
+    strategyChains?: string[][];
 }
 
 export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
@@ -13,20 +14,95 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
     onClose,
     strategy,
     onSave,
+    strategyChains = [],
 }) => {
     const [jsonText, setJsonText] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [selectedChainIndex, setSelectedChainIndex] = useState(0);
+    const [viewMode, setViewMode] = useState<'individual' | 'all'>('individual');
+
+    // Build individual strategy objects for each chain
+    const buildIndividualStrategies = (): Array<StrategyDSL & { name: string }> => {
+        if (strategyChains.length === 0) {
+            return [{ ...strategy, name: 'Full Strategy' }];
+        }
+
+        return strategyChains.map((chain, index) => {
+            const chainAllocations: any = {};
+            chain.forEach(name => {
+                if (strategy.allocations[name]) {
+                    chainAllocations[name] = strategy.allocations[name];
+                }
+            });
+
+            // Determine fallback for this chain
+            let chainFallback = chain[chain.length - 1];
+            for (const name of chain) {
+                const allocationRule = strategy.allocation_rules?.find(ar => ar.allocation === name);
+                if (!allocationRule || allocationRule.rules.length === 0) {
+                    chainFallback = name;
+                    break;
+                }
+            }
+
+            // Filter rules for this chain
+            const chainAllocationRules = (strategy.allocation_rules || []).filter(ar =>
+                chain.includes(ar.allocation)
+            );
+            const chainRuleNames = new Set<string>();
+            chainAllocationRules.forEach(ar => ar.rules.forEach(r => chainRuleNames.add(r)));
+
+            const chainSwitchingLogic = strategy.switching_logic.filter(rule =>
+                chainRuleNames.has(rule.name || '')
+            );
+
+            return {
+                name: chain.length > 1 ? `Strategy ${index + 1}: ${chain.join(' → ')}` : `Strategy ${index + 1}: ${chain[0]}`,
+                start_date: strategy.start_date,
+                end_date: strategy.end_date,
+                initial_capital: strategy.initial_capital,
+                allocations: chainAllocations,
+                fallback_allocation: chainFallback,
+                switching_logic: chainSwitchingLogic,
+                allocation_rules: chainAllocationRules
+            };
+        });
+    };
 
     useEffect(() => {
         if (isOpen) {
-            setJsonText(JSON.stringify(strategy, null, 2));
+            if (strategyChains.length > 0 && viewMode === 'individual') {
+                // Show individual strategy
+                const strategies = buildIndividualStrategies();
+                setJsonText(JSON.stringify(strategies[selectedChainIndex], null, 2));
+            } else if (strategyChains.length > 0 && viewMode === 'all') {
+                // Show all strategies as an array
+                const strategies = buildIndividualStrategies();
+                setJsonText(JSON.stringify(strategies, null, 2));
+            } else {
+                // Fallback to full strategy object
+                setJsonText(JSON.stringify(strategy, null, 2));
+            }
             setError(null);
         }
-    }, [isOpen, strategy]);
+    }, [isOpen, strategy, strategyChains, selectedChainIndex, viewMode]);
 
     const handleSave = () => {
         try {
             const parsed = JSON.parse(jsonText);
+
+            if (viewMode === 'individual' && strategyChains.length > 0) {
+                // For individual strategy editing, merge back into full strategy
+                alert('Individual strategy editing will update only that strategy chain. For now, use All Strategies view to edit all at once.');
+                return;
+            }
+
+            if (viewMode === 'all' && strategyChains.length > 0) {
+                // When editing all strategies as array, user is editing the parsed array format
+                // This would need backend support to handle array of strategies
+                alert('Saving multiple strategies from array format. Ensure your backend accepts an array of strategy objects.');
+            }
+
             onSave(parsed);
             onClose();
         } catch (e) {
@@ -79,6 +155,47 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6">
+                    {/* View Mode Selector - only show if multiple strategies */}
+                    {strategyChains.length > 0 && (
+                        <div className="mb-4 flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+                                <button
+                                    onClick={() => setViewMode('individual')}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'individual'
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                >
+                                    Individual Strategy
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('all')}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'all'
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                >
+                                    All Strategies ({strategyChains.length})
+                                </button>
+                            </div>
+
+                            {/* Strategy selector for individual view */}
+                            {viewMode === 'individual' && (
+                                <select
+                                    value={selectedChainIndex}
+                                    onChange={(e) => setSelectedChainIndex(parseInt(e.target.value))}
+                                    className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none"
+                                >
+                                    {buildIndividualStrategies().map((s, idx) => (
+                                        <option key={idx} value={idx}>
+                                            {s.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+                    )}
+
                     {error && (
                         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                             <div className="flex items-start gap-2">
