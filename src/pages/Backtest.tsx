@@ -11,7 +11,6 @@ const Backtest = () => {
     const {
         strategy,
         buildBacktestRequests,
-        resetStrategy
     } = tacticalStrategyHook;
 
     const [result, setResult] = useState<any>(null)
@@ -105,8 +104,6 @@ const Backtest = () => {
             setLoading(false)
         }
     }
-
-    const hasResults = result || error
 
     return (
         <Layout>
