@@ -11,7 +11,21 @@ const Layout = ({ children }: LayoutProps) => {
     const { user, logout } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
-    const [isExpanded, setIsExpanded] = useState(false)
+
+    // Initialize from localStorage, default to false
+    const [isExpanded, setIsExpanded] = useState(() => {
+        const saved = localStorage.getItem('navbar-expanded')
+        return saved === 'true'
+    })
+
+    // Persist to localStorage whenever it changes
+    const toggleExpanded = () => {
+        setIsExpanded(prev => {
+            const newValue = !prev
+            localStorage.setItem('navbar-expanded', String(newValue))
+            return newValue
+        })
+    }
 
     const handleLogout = () => {
         logout()
@@ -41,7 +55,7 @@ const Layout = ({ children }: LayoutProps) => {
                                 Back<span className="bg-gradient-to-r from-primary-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">folio</span>
                             </Link>
                             <button
-                                onClick={() => setIsExpanded(!isExpanded)}
+                                onClick={toggleExpanded}
                                 className="p-1 rounded-md hover:bg-gray-100 transition-all duration-200 text-gray-500 hover:text-gray-900"
                             >
                                 <X size={20} />
@@ -53,7 +67,7 @@ const Layout = ({ children }: LayoutProps) => {
                                 BF
                             </Link>
                             <button
-                                onClick={() => setIsExpanded(!isExpanded)}
+                                onClick={toggleExpanded}
                                 className="p-1 rounded-md hover:bg-gray-100 transition-all duration-200 text-gray-500 hover:text-gray-900"
                             >
                                 <Menu size={16} />
@@ -185,7 +199,7 @@ const Layout = ({ children }: LayoutProps) => {
             </aside>
 
             {/* Main Content Area */}
-            <main className={`flex-1 ${isExpanded ? 'ml-64' : 'ml-16'} p-8 bg-white transition-all duration-300 ease-in-out`}>
+            <main className={`flex-1 ${isExpanded ? 'ml-64' : 'ml-16'} p-8 bg-white transition-all duration-300 ease-in-out relative`}>
                 {children}
             </main>
         </div>

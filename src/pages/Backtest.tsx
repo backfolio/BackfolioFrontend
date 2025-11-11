@@ -112,8 +112,8 @@ const Backtest = () => {
 
     return (
         <Layout>
-            {/* Full-screen container - override Layout padding */}
-            <div className="fixed inset-0 left-16 lg:left-16 flex flex-col overflow-hidden bg-white">
+            {/* Full-screen container - fills content area without overlapping navbar */}
+            <div className="fixed inset-0 flex flex-col overflow-hidden bg-white transition-all duration-300 ease-in-out" style={{ marginLeft: 'inherit' }}>
                 {/* Canvas Area - fills entire space */}
                 <div className="flex-1 bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden relative">
                     <div className="absolute inset-0 pb-24">
