@@ -83,10 +83,7 @@ const Settings = () => {
                     {/* Success Message */}
                     {successMessage && (
                         <div className="mb-8 p-4 bg-success-500/20 border-2 border-success-500/30 text-success-700 rounded-xl font-semibold">
-                            <div className="flex items-center gap-2">
-                                <span className="text-lg">✅</span>
-                                {successMessage}
-                            </div>
+                            {successMessage}
                         </div>
                     )}
 
@@ -94,14 +91,9 @@ const Settings = () => {
                         {/* Account Information */}
                         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center text-white text-xl">
-                                        👤
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Account Information</h2>
-                                        <p className="text-gray-600">Manage your account details</p>
-                                    </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Account Information</h2>
+                                    <p className="text-gray-600">Manage your account details</p>
                                 </div>
                             </div>
 
@@ -134,14 +126,9 @@ const Settings = () => {
                         {/* Security Settings */}
                         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center text-white text-xl">
-                                        🔒
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Security</h2>
-                                        <p className="text-gray-600">Manage your account security</p>
-                                    </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Security</h2>
+                                    <p className="text-gray-600">Manage your account security</p>
                                 </div>
                             </div>
 
@@ -173,14 +160,9 @@ const Settings = () => {
 
                         {/* Application Preferences */}
                         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center text-white text-xl">
-                                    🎛️
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Application Preferences</h2>
-                                    <p className="text-gray-600">Customize your investment dashboard experience</p>
-                                </div>
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Application Preferences</h2>
+                                <p className="text-gray-600">Customize your investment dashboard experience</p>
                             </div>
 
                             <div className="space-y-6">

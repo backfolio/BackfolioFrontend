@@ -70,17 +70,14 @@ const Dashboard = () => {
                 {/* Quick Actions */}
                 <div className="grid md:grid-cols-3 gap-6">
                     <Link to="/portfolios" className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-gray-300 transition-all duration-300 block">
-                        <div className="text-2xl mb-3">💼</div>
                         <h3 className="text-base font-semibold text-gray-900 mb-2 tracking-tight">Manage Portfolios</h3>
                         <p className="text-sm text-gray-600">Create and organize your investment portfolios</p>
                     </Link>
                     <Link to="/backtest" className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-gray-300 transition-all duration-300 block">
-                        <div className="text-2xl mb-3">📊</div>
                         <h3 className="text-base font-semibold text-gray-900 mb-2 tracking-tight">Backtest Strategies</h3>
                         <p className="text-sm text-gray-600">Test your strategies against historical data</p>
                     </Link>
                     <Link to="/ai-chat" className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-gray-300 transition-all duration-300 block">
-                        <div className="text-2xl mb-3">🤖</div>
                         <h3 className="text-base font-semibold text-gray-900 mb-2 tracking-tight">AI Assistant</h3>
                         <p className="text-sm text-gray-600">Get insights and analysis powered by AI</p>
                     </Link>
