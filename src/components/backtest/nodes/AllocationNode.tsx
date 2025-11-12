@@ -14,6 +14,7 @@ interface AllocationNodeData {
     onDelete: () => void;
     onDuplicate: () => void;
     onManageRules: () => void;
+    onClearRules: () => void;
 }
 
 const TEMPLATES = {
@@ -221,7 +222,18 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                     </div>
                 ) : (data.assignedRules && (typeof data.assignedRules === 'string' ? data.assignedRules : data.assignedRules.length > 0)) ? (
                     <div className="mt-2 space-y-1">
-                        <div className="text-xs font-medium text-slate-600">When to switch TO this portfolio:</div>
+                        <div className="flex items-center justify-between">
+                            <div className="text-xs font-medium text-slate-600">When to switch TO this portfolio:</div>
+                            <button
+                                onClick={data.onClearRules}
+                                className="p-0.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                title="Clear all rules"
+                            >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
                         {typeof data.assignedRules === 'string' ? (
                             // Parse and display expression as stacked rules with operators
                             <div className="space-y-1">
@@ -239,8 +251,8 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                                 </span>
                                                 {operator && (
                                                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${operator === 'AND'
-                                                            ? 'bg-blue-500 text-white'
-                                                            : 'bg-emerald-500 text-white'
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'bg-emerald-500 text-white'
                                                         }`}>
                                                         {operator}
                                                     </span>
@@ -267,7 +279,7 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                             onClick={data.onManageRules}
                             className="text-xs text-purple-600 hover:text-purple-700 font-medium mt-1"
                         >
-                            Manage Rules
+                            Edit Rules
                         </button>
                     </div>
                 ) : (

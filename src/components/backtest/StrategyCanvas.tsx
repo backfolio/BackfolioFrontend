@@ -8,6 +8,7 @@ import {
     useEdgesState,
     Controls,
     Background,
+    BackgroundVariant,
     MiniMap,
     Panel,
     MarkerType,
@@ -114,6 +115,12 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
 
     // Initialize nodes from strategy allocations
+    // Use a stable key to prevent unnecessary re-renders
+    const allocationsKey = React.useMemo(() =>
+        JSON.stringify(Object.keys(hook.strategy.allocations).sort()),
+        [hook.strategy.allocations]
+    );
+
     React.useEffect(() => {
         const allocationNames = Object.keys(hook.strategy.allocations);
         if (allocationNames.length === 0) return;
@@ -193,11 +200,14 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                             setSelectedAllocationForRule(name);
                             setShowAssignRuleModal(true);
                         },
+                        onClearRules: () => {
+                            hook.unassignRuleFromAllocation('', name);
+                        },
                     },
                 };
             });
         });
-    }, [hook.strategy.allocations]);
+    }, [allocationsKey, hook.strategy.allocations, hook.strategy.allocation_rules]);
 
     // Sync nodes with strategy changes (for rule assignments and fallback status)
     React.useEffect(() => {
@@ -412,6 +422,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                         setSelectedAllocationForRule(actualName);
                         setShowAssignRuleModal(true);
                     },
+                    onClearRules: () => {
+                        hook.unassignRuleFromAllocation('', actualName);
+                    },
                 },
             };
 
@@ -486,6 +499,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                         setSelectedAllocationForRule(actualName);
                         setShowAssignRuleModal(true);
                     },
+                    onClearRules: () => {
+                        hook.unassignRuleFromAllocation('', actualName);
+                    },
                 },
             };
 
@@ -542,7 +558,12 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                 panOnScroll={true}
                 attributionPosition="bottom-left"
             >
-                <Background color="#e2e8f0" gap={16} />
+                <Background
+                    color="#cbd5e1"
+                    gap={20}
+                    size={1.5}
+                    variant={BackgroundVariant.Dots}
+                />
                 <Controls showZoom={true} showInteractive={true} />
                 <MiniMap
                     nodeColor={(node) => {
@@ -816,8 +837,18 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                     setSelectedAllocationForRule(null);
                 }}
                 onAssign={handleAssignRuleToConnection}
+                onClear={() => {
+                    if (selectedAllocationForRule) {
+                        hook.unassignRuleFromAllocation('', selectedAllocationForRule);
+                    }
+                }}
                 availableRules={hook.strategy.switching_logic}
                 targetAllocation={selectedAllocationForRule}
+                currentRules={
+                    selectedAllocationForRule
+                        ? hook.strategy.allocation_rules?.find(ar => ar.allocation === selectedAllocationForRule)?.rules
+                        : undefined
+                }
             />
 
             <JsonEditorModal

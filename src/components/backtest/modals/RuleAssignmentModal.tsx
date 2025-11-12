@@ -5,8 +5,10 @@ interface RuleAssignmentModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAssign: (ruleExpression: string) => void;
+    onClear: () => void;
     availableRules: SwitchingRule[];
     targetAllocation: string | null;
+    currentRules?: string | string[];
 }
 
 type RuleItem = {
@@ -18,13 +20,17 @@ export const RuleAssignmentModal: React.FC<RuleAssignmentModalProps> = ({
     isOpen,
     onClose,
     onAssign,
+    onClear,
     availableRules,
     targetAllocation,
+    currentRules,
 }) => {
     const [ruleChain, setRuleChain] = useState<RuleItem[]>([]);
     const [selectedRuleToAdd, setSelectedRuleToAdd] = useState<string | null>(null);
 
     if (!isOpen) return null;
+
+    const hasCurrentRules = currentRules && (typeof currentRules === 'string' ? currentRules.length > 0 : currentRules.length > 0);
 
     const buildExpression = (): string => {
         if (ruleChain.length === 0) return '';
@@ -129,8 +135,8 @@ export const RuleAssignmentModal: React.FC<RuleAssignmentModalProps> = ({
                                                 <button
                                                     onClick={() => updateOperator(index, 'AND')}
                                                     className={`px-3 py-1 rounded text-xs font-bold transition-all ${item.operator === 'AND'
-                                                            ? 'bg-blue-500 text-white shadow'
-                                                            : 'bg-transparent text-slate-600 hover:bg-slate-200'
+                                                        ? 'bg-blue-500 text-white shadow'
+                                                        : 'bg-transparent text-slate-600 hover:bg-slate-200'
                                                         }`}
                                                 >
                                                     AND
@@ -138,8 +144,8 @@ export const RuleAssignmentModal: React.FC<RuleAssignmentModalProps> = ({
                                                 <button
                                                     onClick={() => updateOperator(index, 'OR')}
                                                     className={`px-3 py-1 rounded text-xs font-bold transition-all ${item.operator === 'OR'
-                                                            ? 'bg-emerald-500 text-white shadow'
-                                                            : 'bg-transparent text-slate-600 hover:bg-slate-200'
+                                                        ? 'bg-emerald-500 text-white shadow'
+                                                        : 'bg-transparent text-slate-600 hover:bg-slate-200'
                                                         }`}
                                                 >
                                                     OR
@@ -183,10 +189,10 @@ export const RuleAssignmentModal: React.FC<RuleAssignmentModalProps> = ({
                                         <div
                                             key={index}
                                             className={`w-full p-4 border-2 rounded-xl transition-all ${inChain
-                                                    ? 'border-slate-200 bg-slate-50 opacity-50'
-                                                    : selectedRuleToAdd === ruleName
-                                                        ? 'border-purple-500 bg-purple-50'
-                                                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                ? 'border-slate-200 bg-slate-50 opacity-50'
+                                                : selectedRuleToAdd === ruleName
+                                                    ? 'border-purple-500 bg-purple-50'
+                                                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between gap-3">
@@ -197,10 +203,10 @@ export const RuleAssignmentModal: React.FC<RuleAssignmentModalProps> = ({
                                                         </h3>
                                                         <span
                                                             className={`text-xs px-2 py-0.5 rounded-full font-medium ${rule.rule_type === 'buy'
-                                                                    ? 'bg-emerald-100 text-emerald-700'
-                                                                    : rule.rule_type === 'sell'
-                                                                        ? 'bg-red-100 text-red-700'
-                                                                        : 'bg-blue-100 text-blue-700'
+                                                                ? 'bg-emerald-100 text-emerald-700'
+                                                                : rule.rule_type === 'sell'
+                                                                    ? 'bg-red-100 text-red-700'
+                                                                    : 'bg-blue-100 text-blue-700'
                                                                 }`}
                                                         >
                                                             {rule.rule_type}
@@ -276,20 +282,37 @@ export const RuleAssignmentModal: React.FC<RuleAssignmentModalProps> = ({
 
                 {/* Footer */}
                 {availableRules.length > 0 && (
-                    <div className="px-6 py-4 border-t border-slate-200 flex gap-3">
-                        <button
-                            onClick={handleClose}
-                            className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleAssign}
-                            disabled={ruleChain.length === 0}
-                            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
-                        >
-                            Assign Expression
-                        </button>
+                    <div className="px-6 py-4 border-t border-slate-200">
+                        {/* Show clear button if there are current rules */}
+                        {hasCurrentRules && (
+                            <button
+                                onClick={() => {
+                                    onClear();
+                                    handleClose();
+                                }}
+                                className="w-full mb-3 px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Clear All Rules
+                            </button>
+                        )}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleClose}
+                                className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAssign}
+                                disabled={ruleChain.length === 0}
+                                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
+                            >
+                                Assign Expression
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

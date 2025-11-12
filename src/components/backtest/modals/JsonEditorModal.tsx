@@ -103,13 +103,22 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                 displayFallback = 'CASH';
             }
 
-            return [{
-                ...strategy,
+            const result: DisplayStrategy = {
                 name: 'Full Strategy',
+                start_date: strategy.start_date,
+                end_date: strategy.end_date,
+                initial_capital: strategy.initial_capital,
                 allocations: displayAllocations,
                 fallback_allocation: displayFallback,
-                allocation_rules: displayAllocationRules
-            }];
+                switching_logic: strategy.switching_logic,
+            };
+
+            // Only include allocation_rules if not empty
+            if (displayAllocationRules.length > 0) {
+                result.allocation_rules = displayAllocationRules;
+            }
+
+            return [result];
         }
 
         return strategyChains.map((chain, index) => {
@@ -199,7 +208,7 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                 chainRuleNames.has(rule.name || '')
             );
 
-            return {
+            const result: DisplayStrategy = {
                 name: chain.length > 1 ? `Strategy ${index + 1}: ${chain.join(' → ')}` : `Strategy ${index + 1}: ${chain[0]}`,
                 start_date: strategy.start_date,
                 end_date: strategy.end_date,
@@ -207,8 +216,14 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                 allocations: chainAllocations,
                 fallback_allocation: chainFallback,
                 switching_logic: chainSwitchingLogic,
-                allocation_rules: chainAllocationRules
             };
+
+            // Only include allocation_rules if not empty
+            if (chainAllocationRules.length > 0) {
+                result.allocation_rules = chainAllocationRules;
+            }
+
+            return result;
         });
     };
 
