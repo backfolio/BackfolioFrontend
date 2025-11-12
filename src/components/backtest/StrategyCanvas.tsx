@@ -53,12 +53,12 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // Refs & State
     // ============================================================================
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
-    
+
     // Position tracking: persists node positions across re-renders to prevent layout resets
     // - Stores positions when nodes are dragged or duplicated
     // - Prioritizes: stored position > existing position > default grid layout
     const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
-    
+
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -73,7 +73,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
     // Effects
     // ============================================================================
-    
+
     // Track node position changes to persist them across renders
     React.useEffect(() => {
         nodes.forEach(node => {
@@ -92,7 +92,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
     // Node Management Handlers
     // ============================================================================
-    
+
     const handleDuplicateNode = useCallback((sourceNodeId: string) => {
         const sourceNode = nodes.find(n => n.id === sourceNodeId);
         if (!sourceNode) return;
@@ -112,7 +112,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
     // Node Initialization & Synchronization Effects
     // ============================================================================
-    
+
     // Initialize nodes from strategy allocations
     React.useEffect(() => {
         const allocationNames = Object.keys(hook.strategy.allocations);
@@ -284,7 +284,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
     // Connection Handlers
     // ============================================================================
-    
+
     const onConnect = useCallback(
         (params: Connection) => {
             if (!params.source || !params.target) return;
@@ -344,7 +344,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
     // Portfolio Creation Handlers
     // ============================================================================
-    
+
     // Quick create - adds empty portfolio to canvas for inline configuration
     const handleQuickCreatePortfolio = () => {
         const count = Object.keys(hook.strategy.allocations).length;
@@ -504,7 +504,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // ============================================================================
     // Rule Management Handlers
     // ============================================================================
-    
+
     const handleCreateRule = (ruleData: any) => {
         hook.addSwitchingRuleWithData(ruleData);
         setShowRuleModal(false);
