@@ -302,14 +302,21 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
         [nodes, edges]
     );
 
-    const handleCreatePortfolio = (name: string, allocation: Allocation) => {
+    // Quick create - adds empty portfolio to canvas for inline configuration
+    const handleQuickCreatePortfolio = () => {
+        const count = Object.keys(hook.strategy.allocations).length;
+        const name = `Portfolio ${count + 1}`;
+        const allocation: Allocation = { SPY: 1.0 }; // Default single asset
+
         const actualName = hook.addAllocationWithAssets(name, allocation);
 
         if (actualName) {
-            const position = {
-                x: 100 + (Object.keys(hook.strategy.allocations).length % 3) * 350,
-                y: 100 + Math.floor(Object.keys(hook.strategy.allocations).length / 3) * 250,
-            };
+            const position = reactFlowInstance
+                ? reactFlowInstance.project({ x: window.innerWidth / 2 - 140, y: window.innerHeight / 2 - 100 })
+                : {
+                    x: 100 + (count % 3) * 350,
+                    y: 100 + Math.floor(count / 3) * 250,
+                };
 
             const newNode: Node = {
                 id: actualName,
@@ -321,6 +328,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                     isFallback: false,
                     assignedRules: [],
                     rebalancingFrequency: undefined,
+                    isNewlyCreated: true, // Flag to auto-open edit mode
                     onUpdate: (newAllocation: Allocation, rebalancingFrequency?: string) => {
                         hook.updateAllocation(actualName, {
                             allocation: newAllocation,
@@ -348,7 +356,70 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                         );
                     },
                     onManageRules: () => {
-                        // New nodes start as non-fallback, so this is safe
+                        setSelectedAllocationForRule(actualName);
+                        setShowAssignRuleModal(true);
+                    },
+                },
+            };
+
+            setNodes((nds) => nds.concat(newNode));
+
+            // Auto-fit view after adding node
+            setTimeout(() => {
+                if (reactFlowInstance) {
+                    reactFlowInstance.fitView({ padding: 0.2, duration: 300 });
+                }
+            }, 50);
+        }
+    };
+
+    const handleCreatePortfolio = (name: string, allocation: Allocation) => {
+        const actualName = hook.addAllocationWithAssets(name, allocation);
+
+        if (actualName) {
+            const position = {
+                x: 100 + (Object.keys(hook.strategy.allocations).length % 3) * 350,
+                y: 100 + Math.floor(Object.keys(hook.strategy.allocations).length / 3) * 250,
+            };
+
+            const newNode: Node = {
+                id: actualName,
+                type: 'allocation',
+                position,
+                data: {
+                    name: actualName,
+                    allocation,
+                    isFallback: false,
+                    assignedRules: [],
+                    rebalancingFrequency: undefined,
+                    isNewlyCreated: false,
+                    onUpdate: (newAllocation: Allocation, rebalancingFrequency?: string) => {
+                        hook.updateAllocation(actualName, {
+                            allocation: newAllocation,
+                            rebalancing_frequency: rebalancingFrequency as any,
+                        });
+                    },
+                    onRename: (newName: string) => {
+                        hook.renameAllocation(actualName, newName);
+                        setNodes((nds) =>
+                            nds.map((n) => (n.id === actualName ? { ...n, id: newName, data: { ...n.data, name: newName } } : n))
+                        );
+                        setEdges((eds) =>
+                            eds.map((e) => ({
+                                ...e,
+                                source: e.source === actualName ? newName : e.source,
+                                target: e.target === actualName ? newName : e.target,
+                            }))
+                        );
+                    },
+                    onDelete: () => {
+                        hook.deleteAllocation(actualName);
+                        setNodes((nds) => nds.filter((n) => n.id !== actualName));
+                        setEdges((eds) =>
+                            eds.filter((e) => e.source !== actualName && e.target !== actualName)
+                        );
+                    },
+                    onManageRules: () => {
                         setSelectedAllocationForRule(actualName);
                         setShowAssignRuleModal(true);
                     },
@@ -418,15 +489,21 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
 
                 {/* Compact Floating Toolbar - Excalidraw Style */}
                 <Panel position="top-left" className="flex gap-2">
-                    <button
-                        onClick={() => setShowPortfolioModal(true)}
-                        className="p-2.5 bg-white rounded-lg shadow-md hover:shadow-lg border border-slate-200 hover:border-purple-400 transition-all group"
-                        title="Add Portfolio"
-                    >
-                        <svg className="w-5 h-5 text-slate-600 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                    </button>
+                    <div className="relative group">
+                        <button
+                            onClick={handleQuickCreatePortfolio}
+                            className="p-2.5 bg-white rounded-lg shadow-md hover:shadow-lg border border-slate-200 hover:border-purple-400 transition-all group"
+                            title="Add Portfolio (Click to add to canvas)"
+                        >
+                            <svg className="w-5 h-5 text-slate-600 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </button>
+                        {/* Small helper text on hover */}
+                        <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                            Create portfolio on canvas
+                        </div>
+                    </div>
 
                     <button
                         onClick={() => setShowRuleModal(true)}

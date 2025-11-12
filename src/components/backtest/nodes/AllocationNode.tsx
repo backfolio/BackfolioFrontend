@@ -12,15 +12,40 @@ interface AllocationNodeData {
     assignedRules?: string[];
     isFallback?: boolean;
     rebalancingFrequency?: 'monthly' | 'quarterly';
+    isNewlyCreated?: boolean;
 }
 
+const TEMPLATES = {
+    conservative: {
+        name: 'Conservative 60/40',
+        allocation: { SPY: 0.6, BND: 0.4 },
+    },
+    balanced: {
+        name: 'Balanced 70/30',
+        allocation: { SPY: 0.7, BND: 0.3 },
+    },
+    aggressive: {
+        name: 'Aggressive 80/20',
+        allocation: { SPY: 0.8, BND: 0.2 },
+    },
+    allEquity: {
+        name: 'All Equity',
+        allocation: { SPY: 1.0 },
+    },
+    goldenButterfly: {
+        name: 'Golden Butterfly',
+        allocation: { SPY: 0.2, VTI: 0.2, SHY: 0.2, TLT: 0.2, GLD: 0.2 },
+    },
+};
+
 export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>) => {
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(data.isNewlyCreated || false);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(data.name);
     const [editedAllocation, setEditedAllocation] = useState<Allocation>(data.allocation);
     const [rebalancingEnabled, setRebalancingEnabled] = useState(!!data.rebalancingFrequency);
     const [rebalancingFrequency, setRebalancingFrequency] = useState(data.rebalancingFrequency || 'monthly');
+    const [showTemplates, setShowTemplates] = useState(data.isNewlyCreated || false);
 
     const total = Object.values(editedAllocation).reduce((sum, val) => sum + val, 0);
     const isValid = Math.abs(total - 1.0) < 0.001;
@@ -40,7 +65,14 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                 rebalancingEnabled ? rebalancingFrequency : undefined
             );
             setIsEditing(false);
+            setShowTemplates(false);
         }
+    };
+
+    const handleLoadTemplate = (templateKey: keyof typeof TEMPLATES) => {
+        const template = TEMPLATES[templateKey];
+        setEditedAllocation(template.allocation);
+        setShowTemplates(false);
     };
 
     const handleSaveName = () => {
@@ -197,6 +229,44 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
             <div className="p-4">
                 {isEditing ? (
                     <div className="space-y-2">
+                        {/* Template Selector */}
+                        {showTemplates && (
+                            <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded-lg">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-medium text-purple-900">Load Template</span>
+                                    <button
+                                        onClick={() => setShowTemplates(false)}
+                                        className="text-purple-500 hover:text-purple-700 text-xs"
+                                    >
+                                        Skip
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-1">
+                                    {Object.entries(TEMPLATES).map(([key, template]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => handleLoadTemplate(key as keyof typeof TEMPLATES)}
+                                            className="text-left px-2 py-1.5 bg-white hover:bg-purple-100 border border-purple-200 hover:border-purple-400 rounded text-xs transition-all"
+                                        >
+                                            <div className="font-medium text-purple-900 text-[10px] mb-0.5">{template.name}</div>
+                                            <div className="text-[9px] text-purple-600 truncate">
+                                                {Object.entries(template.allocation).map(([sym, w]) => `${sym} ${Math.round(w * 100)}%`).join(' · ')}
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {!showTemplates && (
+                            <button
+                                onClick={() => setShowTemplates(true)}
+                                className="w-full px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 border border-dashed border-purple-300 rounded transition-colors mb-2"
+                            >
+                                📋 Load from Template
+                            </button>
+                        )}
+
                         {Object.entries(editedAllocation).map(([symbol, weight]) => (
                             <div key={symbol} className="flex items-center gap-2">
                                 <input
