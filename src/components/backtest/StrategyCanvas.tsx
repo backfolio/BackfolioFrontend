@@ -305,6 +305,13 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // Quick create - adds empty portfolio to canvas for inline configuration
     const handleQuickCreatePortfolio = () => {
         const count = Object.keys(hook.strategy.allocations).length;
+        
+        // Limit to 6 portfolios per strategy
+        if (count >= 6) {
+            alert('Maximum of 6 portfolios per strategy reached.');
+            return;
+        }
+        
         const name = `Portfolio ${count + 1}`;
         const allocation: Allocation = { SPY: 1.0 }; // Default single asset
 
@@ -374,6 +381,13 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     };
 
     const handleCreatePortfolio = (name: string, allocation: Allocation) => {
+        // Limit to 6 portfolios per strategy
+        if (Object.keys(hook.strategy.allocations).length >= 6) {
+            alert('Maximum of 6 portfolios per strategy reached.');
+            setShowPortfolioModal(false);
+            return;
+        }
+        
         const actualName = hook.addAllocationWithAssets(name, allocation);
 
         if (actualName) {
@@ -492,8 +506,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                     <div className="relative group">
                         <button
                             onClick={handleQuickCreatePortfolio}
-                            className="p-2.5 bg-white rounded-lg shadow-md hover:shadow-lg border border-slate-200 hover:border-purple-400 transition-all group"
-                            title="Add Portfolio (Click to add to canvas)"
+                            disabled={Object.keys(hook.strategy.allocations).length >= 6}
+                            className="p-2.5 bg-white rounded-lg shadow-md hover:shadow-lg border border-slate-200 hover:border-purple-400 transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200"
+                            title={Object.keys(hook.strategy.allocations).length >= 6 ? "Maximum 6 portfolios per strategy" : "Add Portfolio (Click to add to canvas)"}
                         >
                             <svg className="w-5 h-5 text-slate-600 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -501,7 +516,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                         </button>
                         {/* Small helper text on hover */}
                         <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                            Create portfolio on canvas
+                            {Object.keys(hook.strategy.allocations).length >= 6 ? 'Max 6 portfolios' : 'Create portfolio on canvas'}
                         </div>
                     </div>
 

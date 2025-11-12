@@ -83,9 +83,20 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
     };
 
     const handleAddAsset = () => {
+        // Limit to 6 assets per portfolio
+        if (Object.keys(editedAllocation).length >= 6) {
+            return;
+        }
+        // Generate a unique temporary key to avoid collisions when adding multiple assets
+        let tempKey = '';
+        let counter = 0;
+        while (tempKey in editedAllocation) {
+            tempKey = `_new_asset_${counter}`;
+            counter++;
+        }
         setEditedAllocation({
             ...editedAllocation,
-            '': 0,
+            [tempKey]: 0,
         });
     };
 
@@ -271,9 +282,9 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                             <div key={symbol} className="flex items-center gap-2">
                                 <input
                                     type="text"
-                                    value={symbol}
+                                    value={symbol.startsWith('_new_asset_') ? '' : symbol}
                                     onChange={(e) => handleUpdateSymbol(symbol, e.target.value)}
-                                    placeholder="Symbol"
+                                    placeholder="Ticker Symbol"
                                     className="flex-1 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 />
                                 <input
@@ -298,9 +309,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
 
                         <button
                             onClick={handleAddAsset}
-                            className="w-full mt-2 px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 border border-dashed border-purple-300 rounded transition-colors"
+                            disabled={Object.keys(editedAllocation).length >= 6}
+                            className="w-full mt-2 px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 border border-dashed border-purple-300 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         >
-                            + Add Asset
+                            + Add Asset {Object.keys(editedAllocation).length >= 6 ? '(Max 6)' : ''}
                         </button>
 
                         {/* Rebalancing Controls */}

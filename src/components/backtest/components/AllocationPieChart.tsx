@@ -77,8 +77,8 @@ export const AllocationPieChart: React.FC<AllocationPieChartProps> = ({ allocati
                         labelLine={{ stroke: '#9ca3af', strokeWidth: 1 }}
                     >
                         {data.map((_entry, index) => (
-                            <Cell 
-                                key={`cell-${index}`} 
+                            <Cell
+                                key={`cell-${index}`}
                                 fill={COLORS[index % COLORS.length]}
                                 stroke="#ffffff"
                                 strokeWidth={2}
