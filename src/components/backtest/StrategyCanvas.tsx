@@ -305,13 +305,13 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     // Quick create - adds empty portfolio to canvas for inline configuration
     const handleQuickCreatePortfolio = () => {
         const count = Object.keys(hook.strategy.allocations).length;
-        
+
         // Limit to 6 portfolios per strategy
         if (count >= 6) {
             alert('Maximum of 6 portfolios per strategy reached.');
             return;
         }
-        
+
         const name = `Portfolio ${count + 1}`;
         const allocation: Allocation = { SPY: 1.0 }; // Default single asset
 
@@ -387,7 +387,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
             setShowPortfolioModal(false);
             return;
         }
-        
+
         const actualName = hook.addAllocationWithAssets(name, allocation);
 
         if (actualName) {
