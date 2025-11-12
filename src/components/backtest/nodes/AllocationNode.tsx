@@ -5,14 +5,15 @@ import { Allocation } from '../../../types/strategy';
 interface AllocationNodeData {
     name: string;
     allocation: Allocation;
-    onUpdate?: (allocation: Allocation, rebalancingFrequency?: string) => void;
-    onRename?: (newName: string) => void;
-    onDelete?: () => void;
-    onManageRules?: () => void;
-    assignedRules?: string[];
     isFallback?: boolean;
-    rebalancingFrequency?: 'monthly' | 'quarterly';
+    assignedRules?: string[] | string; // Can be array (legacy) or expression string
+    rebalancingFrequency?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
     isNewlyCreated?: boolean;
+    onUpdate: (allocation: Allocation, rebalancingFrequency?: string) => void;
+    onRename: (newName: string) => void;
+    onDelete: () => void;
+    onDuplicate: () => void;
+    onManageRules: () => void;
 }
 
 const TEMPLATES = {
@@ -188,6 +189,15 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                             </svg>
                         </button>
                         <button
+                            onClick={data.onDuplicate}
+                            className="p-1 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                            title="Duplicate portfolio"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                        <button
                             onClick={data.onDelete}
                             className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                             title="Delete portfolio"
@@ -209,19 +219,53 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                             + Define Switching Rules
                         </button>
                     </div>
-                ) : (data.assignedRules?.length ?? 0) > 0 ? (
+                ) : (data.assignedRules && (typeof data.assignedRules === 'string' ? data.assignedRules : data.assignedRules.length > 0)) ? (
                     <div className="mt-2 space-y-1">
                         <div className="text-xs font-medium text-slate-600">When to switch TO this portfolio:</div>
-                        {data.assignedRules?.map((ruleName) => (
-                            <div key={ruleName} className="flex items-center gap-1 text-xs">
-                                <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
-                                    {ruleName}
-                                </span>
+                        {typeof data.assignedRules === 'string' ? (
+                            // Parse and display expression as stacked rules with operators
+                            <div className="space-y-1">
+                                {(() => {
+                                    const parts = data.assignedRules.split(/\s+(AND|OR)\s+/);
+                                    const elements = [];
+                                    for (let i = 0; i < parts.length; i += 2) {
+                                        const rule = parts[i].trim();
+                                        const operator = parts[i + 1] as 'AND' | 'OR' | undefined;
+
+                                        elements.push(
+                                            <div key={i} className="flex items-center gap-1.5">
+                                                <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[11px] font-medium">
+                                                    {rule}
+                                                </span>
+                                                {operator && (
+                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${operator === 'AND'
+                                                            ? 'bg-blue-500 text-white'
+                                                            : 'bg-emerald-500 text-white'
+                                                        }`}>
+                                                        {operator}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        );
+                                    }
+                                    return elements;
+                                })()}
                             </div>
-                        ))}
+                        ) : (
+                            // Legacy array display
+                            <div className="space-y-1">
+                                {data.assignedRules.map((ruleName) => (
+                                    <div key={ruleName} className="flex items-center gap-1 text-xs">
+                                        <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                                            {ruleName}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                         <button
                             onClick={data.onManageRules}
-                            className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                            className="text-xs text-purple-600 hover:text-purple-700 font-medium mt-1"
                         >
                             Manage Rules
                         </button>

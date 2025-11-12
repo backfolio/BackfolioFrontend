@@ -40,7 +40,7 @@ export interface SwitchingRule {
 
 export interface AllocationRule {
     allocation: string;
-    rules: string[]; // rule names
+    rules: string[] | string; // rule names array OR logical expression string (e.g., "A AND B OR C")
 }
 
 // Main strategy DSL structure - matches API contract

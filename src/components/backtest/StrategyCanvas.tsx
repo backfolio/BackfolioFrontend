@@ -23,6 +23,18 @@ import { JsonEditorModal } from './modals/JsonEditorModal';
 import { useTacticalStrategy } from '../../hooks/useTacticalStrategy';
 import { Allocation } from '../../types/strategy';
 
+/**
+ * StrategyCanvas - Visual node-based editor for portfolio strategies
+ * 
+ * Architecture:
+ * - Uses ReactFlow for canvas rendering and node/edge management
+ * - Maintains persistent position tracking via nodePositionsRef to prevent layout resets
+ * - Syncs with useTacticalStrategy hook for strategy state management
+ * - Supports drag-and-drop, duplicate, delete, rename operations
+ * - Implements linked-list connection constraints (max 1 in/out per node)
+ * - Auto-detects fallback portfolios based on rule assignments
+ */
+
 const nodeTypes = {
     allocation: AllocationNode,
 };
@@ -37,7 +49,16 @@ interface StrategyCanvasProps {
 }
 
 export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesChange: notifyEdgesChange }) => {
+    // ============================================================================
+    // Refs & State
+    // ============================================================================
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
+    
+    // Position tracking: persists node positions across re-renders to prevent layout resets
+    // - Stores positions when nodes are dragged or duplicated
+    // - Prioritizes: stored position > existing position > default grid layout
+    const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
+    
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -49,6 +70,17 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
     const [showSummary, setShowSummary] = useState(false);
     const [selectedAllocationForRule, setSelectedAllocationForRule] = useState<string | null>(null);
 
+    // ============================================================================
+    // Effects
+    // ============================================================================
+    
+    // Track node position changes to persist them across renders
+    React.useEffect(() => {
+        nodes.forEach(node => {
+            nodePositionsRef.current.set(node.id, node.position);
+        });
+    }, [nodes]);
+
     // Notify parent of edge changes for multi-strategy detection
     React.useEffect(() => {
         if (notifyEdgesChange) {
@@ -57,101 +89,118 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
         }
     }, [edges, notifyEdgesChange]);
 
+    // ============================================================================
+    // Node Management Handlers
+    // ============================================================================
+    
+    const handleDuplicateNode = useCallback((sourceNodeId: string) => {
+        const sourceNode = nodes.find(n => n.id === sourceNodeId);
+        if (!sourceNode) return;
+
+        // Create duplicate allocation via hook
+        const newName = hook.duplicateAllocation(sourceNodeId);
+        if (!newName) return;
+
+        // Pre-store position for the new node (300px to the right of source)
+        // The initialization effect will pick this up when the allocation is created
+        nodePositionsRef.current.set(newName, {
+            x: sourceNode.position.x + 300,
+            y: sourceNode.position.y,
+        });
+    }, [hook, nodes]);
+
+    // ============================================================================
+    // Node Initialization & Synchronization Effects
+    // ============================================================================
+    
     // Initialize nodes from strategy allocations
     React.useEffect(() => {
         const allocationNames = Object.keys(hook.strategy.allocations);
         if (allocationNames.length === 0) return;
 
-        const initialNodes: Node[] = allocationNames.map((name, index) => {
-            const allocationWithRebalancing = hook.strategy.allocations[name];
+        setNodes((currentNodes) => {
+            const existingNodeMap = new Map(currentNodes.map(n => [n.id, n]));
 
-            // Find rules assigned to this allocation
-            const allocationRule = hook.strategy.allocation_rules?.find(ar => ar.allocation === name);
-            const assignedRules = allocationRule?.rules || [];
+            return allocationNames.map((name, index) => {
+                const allocationWithRebalancing = hook.strategy.allocations[name];
+                const allocationRule = hook.strategy.allocation_rules?.find(ar => ar.allocation === name);
+                const assignedRules = allocationRule?.rules || [];
+                const isFallback = false;
 
-            // Fallback status will be computed by useEffect watching edges
-            // Initial state: no nodes are fallback until edges are established
-            const isFallback = false;
+                // Priority: stored position > existing position > default grid position
+                const existingNode = existingNodeMap.get(name);
+                const storedPosition = nodePositionsRef.current.get(name);
 
-            return {
-                id: name,
-                type: 'allocation',
-                position: {
+                const position = storedPosition || existingNode?.position || {
                     x: 100 + (index % 3) * 350,
                     y: 100 + Math.floor(index / 3) * 250,
-                },
-                data: {
-                    name,
-                    allocation: allocationWithRebalancing.allocation,
-                    isFallback,
-                    assignedRules,
-                    rebalancingFrequency: allocationWithRebalancing.rebalancing_frequency,
-                    onUpdate: (newAllocation: Allocation, rebalancingFrequency?: string) => {
-                        hook.updateAllocation(name, {
-                            allocation: newAllocation,
-                            rebalancing_frequency: rebalancingFrequency as any,
-                        });
-                    },
-                    onRename: (newName: string) => {
-                        hook.renameAllocation(name, newName);
-                        // Update node id
-                        setNodes((nds) =>
-                            nds.map((n) => (n.id === name ? { ...n, id: newName, data: { ...n.data, name: newName } } : n))
-                        );
-                        // Update edges
-                        setEdges((eds) =>
-                            eds.map((e) => ({
-                                ...e,
-                                source: e.source === name ? newName : e.source,
-                                target: e.target === name ? newName : e.target,
-                            }))
-                        );
-                    },
-                    onDelete: () => {
-                        hook.deleteAllocation(name);
-                        setNodes((nds) => nds.filter((n) => n.id !== name));
-                        setEdges((eds) =>
-                            eds.filter((e) => e.source !== name && e.target !== name)
-                        );
-                    },
-                    onManageRules: () => {
-                        // Allow rule management on all nodes including fallback
-                        setSelectedAllocationForRule(name);
-                        setShowAssignRuleModal(true);
-                    },
-                },
-            };
-        });
+                };
 
-        setNodes(initialNodes);
-
-        // Initialize edges from allocation_rules
-        // Each portfolio with rules can switch to other portfolios
-        const initialEdges: Edge[] = [];
-        if (hook.strategy.allocation_rules) {
-            hook.strategy.allocation_rules.forEach((allocationRule) => {
-                if (allocationRule.rules.length > 0) {
-                    // Find which portfolio(s) have rules that switch TO this allocation
-                    // We need to trace back: which portfolio's rules trigger switch to this?
-                    // For now, we'll create edges based on the existence of rules
-                    allocationNames.forEach((sourceName) => {
-                        const sourceRules = hook.strategy.allocation_rules?.find(ar => ar.allocation === sourceName);
-                        if (sourceRules && sourceRules.rules.length > 0 && sourceName !== allocationRule.allocation) {
-                            // This is a potential edge
-                            // TODO: This logic needs refinement based on actual rule targets
-                        }
-                    });
+                // Store this position for future reference
+                if (!storedPosition && existingNode?.position) {
+                    nodePositionsRef.current.set(name, existingNode.position);
+                } else if (!storedPosition) {
+                    nodePositionsRef.current.set(name, position);
                 }
-            });
-        }
 
-        setEdges(initialEdges);
-    }, [hook.strategy.allocations, hook.strategy.allocation_rules, hook.strategy.fallback_allocation]);
+                return {
+                    id: name,
+                    type: 'allocation',
+                    position,
+                    data: {
+                        name,
+                        allocation: allocationWithRebalancing.allocation,
+                        isFallback,
+                        assignedRules,
+                        rebalancingFrequency: allocationWithRebalancing.rebalancing_frequency,
+                        onUpdate: (newAllocation: Allocation, rebalancingFrequency?: string) => {
+                            hook.updateAllocation(name, {
+                                allocation: newAllocation,
+                                rebalancing_frequency: rebalancingFrequency as any,
+                            });
+                        },
+                        onRename: (newName: string) => {
+                            hook.renameAllocation(name, newName);
+                            // Update position tracking
+                            const pos = nodePositionsRef.current.get(name);
+                            if (pos) {
+                                nodePositionsRef.current.delete(name);
+                                nodePositionsRef.current.set(newName, pos);
+                            }
+                            setNodes((nds) =>
+                                nds.map((n) => (n.id === name ? { ...n, id: newName, data: { ...n.data, name: newName } } : n))
+                            );
+                            setEdges((eds) =>
+                                eds.map((e) => ({
+                                    ...e,
+                                    source: e.source === name ? newName : e.source,
+                                    target: e.target === name ? newName : e.target,
+                                }))
+                            );
+                        },
+                        onDelete: () => {
+                            hook.deleteAllocation(name);
+                            nodePositionsRef.current.delete(name); // Clean up position tracking
+                            setNodes((nds) => nds.filter((n) => n.id !== name));
+                            setEdges((eds) =>
+                                eds.filter((e) => e.source !== name && e.target !== name)
+                            );
+                        },
+                        onDuplicate: () => {
+                            handleDuplicateNode(name);
+                        },
+                        onManageRules: () => {
+                            setSelectedAllocationForRule(name);
+                            setShowAssignRuleModal(true);
+                        },
+                    },
+                };
+            });
+        });
+    }, [hook.strategy.allocations]);
 
     // Sync nodes with strategy changes (for rule assignments and fallback status)
     React.useEffect(() => {
-        console.log('[Sync Effect] Running with edges:', edges.length, 'allocation_rules:', hook.strategy.allocation_rules?.length);
-
         setNodes((nds) => {
             const incomingMap = new Map<string, number>();
             const outgoingMap = new Map<string, number>();
@@ -198,7 +247,8 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                     const allocationRule = hook.strategy.allocation_rules?.find(
                         (ar) => ar.allocation === nodeId
                     );
-                    const hasRules = (allocationRule?.rules || []).length > 0;
+                    const rulesData = allocationRule?.rules || [];
+                    const hasRules = typeof rulesData === 'string' ? rulesData.length > 0 : rulesData.length > 0;
 
                     if (!hasRules) {
                         // First node in chain without rules = fallback
@@ -214,25 +264,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                 );
                 const assignedRules = allocationRule?.rules || [];
 
-                const hasIncoming = (incomingMap.get(node.id) || 0) > 0;
-                const hasOutgoing = (outgoingMap.get(node.id) || 0) > 0;
-                const hasRules = assignedRules.length > 0;
                 const isFallback = fallbackNodes.has(node.id);
-
-                // Debug: show all nodes with edges
-                if (hasIncoming || hasOutgoing) {
-                    console.log(`[Node] ${node.id}:`, {
-                        hasIncoming,
-                        hasOutgoing,
-                        hasRules,
-                        assignedRules,
-                        isFallback
-                    });
-                }
-
-                if (isFallback) {
-                    console.log(`🟢 FALLBACK DETECTED: ${node.id}`);
-                }
 
                 return {
                     ...node,
@@ -240,12 +272,19 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                         ...node.data,
                         assignedRules,
                         isFallback,
+                        onDuplicate: () => {
+                            handleDuplicateNode(node.id);
+                        },
                     },
                 };
             });
         });
-    }, [hook.strategy.allocation_rules, edges, hook.strategy]);
+    }, [hook.strategy.allocation_rules, edges, handleDuplicateNode]);
 
+    // ============================================================================
+    // Connection Handlers
+    // ============================================================================
+    
     const onConnect = useCallback(
         (params: Connection) => {
             if (!params.source || !params.target) return;
@@ -302,6 +341,10 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
         [nodes, edges]
     );
 
+    // ============================================================================
+    // Portfolio Creation Handlers
+    // ============================================================================
+    
     // Quick create - adds empty portfolio to canvas for inline configuration
     const handleQuickCreatePortfolio = () => {
         const count = Object.keys(hook.strategy.allocations).length;
@@ -361,6 +404,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                         setEdges((eds) =>
                             eds.filter((e) => e.source !== actualName && e.target !== actualName)
                         );
+                    },
+                    onDuplicate: () => {
+                        handleDuplicateNode(actualName);
                     },
                     onManageRules: () => {
                         setSelectedAllocationForRule(actualName);
@@ -433,6 +479,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
                             eds.filter((e) => e.source !== actualName && e.target !== actualName)
                         );
                     },
+                    onDuplicate: () => {
+                        handleDuplicateNode(actualName);
+                    },
                     onManageRules: () => {
                         setSelectedAllocationForRule(actualName);
                         setShowAssignRuleModal(true);
@@ -452,6 +501,10 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({ hook, onEdgesCha
         setShowPortfolioModal(false);
     };
 
+    // ============================================================================
+    // Rule Management Handlers
+    // ============================================================================
+    
     const handleCreateRule = (ruleData: any) => {
         hook.addSwitchingRuleWithData(ruleData);
         setShowRuleModal(false);

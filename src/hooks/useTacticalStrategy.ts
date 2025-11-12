@@ -145,8 +145,10 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
             ? Object.keys(newAllocations)[0] || ''
             : strategy.fallback_allocation;
 
-        // Remove allocation rules that reference the deleted allocation
-        const newAllocationRules = (strategy.allocation_rules || []).filter(ar => ar.allocation !== name);
+        // Remove allocation_rules for this allocation
+        const newAllocationRules = (strategy.allocation_rules || []).filter(
+            ar => ar.allocation !== name
+        );
 
         updateStrategy({
             ...strategy,
@@ -154,6 +156,46 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
             fallback_allocation: newFallback,
             allocation_rules: newAllocationRules
         });
+    }, [strategy, updateStrategy]);
+
+    const duplicateAllocation = useCallback((name: string) => {
+        const allocation = strategy.allocations[name];
+        if (!allocation) return null;
+
+        // Find unique name with _1, _2, etc suffix
+        const existingNames = Object.keys(strategy.allocations).map(n => n.toLowerCase());
+        let copyNumber = 1;
+        let newName = `${name}_${copyNumber}`;
+
+        while (existingNames.includes(newName.toLowerCase())) {
+            copyNumber++;
+            newName = `${name}_${copyNumber}`;
+        }
+
+        // Add the duplicated allocation
+        const newStrategy = {
+            ...strategy,
+            allocations: {
+                ...strategy.allocations,
+                [newName]: { ...allocation }
+            }
+        };
+
+        // Copy rules if they exist
+        const existingRules = strategy.allocation_rules?.find(ar => ar.allocation === name);
+        if (existingRules) {
+            const newAllocationRules = [
+                ...(newStrategy.allocation_rules || []),
+                {
+                    allocation: newName,
+                    rules: existingRules.rules
+                }
+            ];
+            newStrategy.allocation_rules = newAllocationRules;
+        }
+
+        updateStrategy(newStrategy);
+        return newName;
     }, [strategy, updateStrategy]);
 
     const renameAllocation = useCallback((oldName: string, newName: string) => {
@@ -336,7 +378,9 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
         // Update allocation_rules that reference the old rule name
         const newAllocationRules = (strategy.allocation_rules || []).map(ar => ({
             ...ar,
-            rules: ar.rules.map(r => r === oldName ? name : r)
+            rules: typeof ar.rules === 'string'
+                ? ar.rules.replace(new RegExp(`\\b${oldName}\\b`, 'g'), name)
+                : ar.rules.map(r => r === oldName ? name : r)
         }));
 
         updateStrategy({
@@ -351,20 +395,18 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
         updateSwitchingRule(ruleIndex, rule);
     }, [strategy, updateSwitchingRule]);
 
-    const assignRuleToAllocation = useCallback((ruleName: string, allocationName: string) => {
+    const assignRuleToAllocation = useCallback((ruleExpression: string, allocationName: string) => {
         const allocationRules = strategy.allocation_rules || [];
         const existingAllocationRule = allocationRules.find(ar => ar.allocation === allocationName);
 
         if (existingAllocationRule) {
-            // Check if rule is already assigned
-            if (!existingAllocationRule.rules.includes(ruleName)) {
-                existingAllocationRule.rules.push(ruleName);
-            }
+            // Replace with the new expression
+            existingAllocationRule.rules = ruleExpression;
         } else {
             // Create new allocation rule mapping
             allocationRules.push({
                 allocation: allocationName,
-                rules: [ruleName]
+                rules: ruleExpression
             });
         }
 
@@ -379,19 +421,30 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
         const existingAllocationRule = allocationRules.find(ar => ar.allocation === allocationName);
 
         if (existingAllocationRule) {
-            existingAllocationRule.rules = existingAllocationRule.rules.filter(r => r !== ruleName);
-            // Remove allocation rule if no rules left
-            if (existingAllocationRule.rules.length === 0) {
+            // If rules is a string expression, parse it and remove the rule
+            if (typeof existingAllocationRule.rules === 'string') {
+                // Remove this allocation rule entirely - user needs to rebuild expression
                 const updatedRules = allocationRules.filter(ar => ar.allocation !== allocationName);
                 updateStrategy({
                     ...strategy,
                     allocation_rules: updatedRules
                 });
             } else {
-                updateStrategy({
-                    ...strategy,
-                    allocation_rules: allocationRules
-                });
+                // Legacy array format
+                existingAllocationRule.rules = existingAllocationRule.rules.filter(r => r !== ruleName);
+                // Remove allocation rule if no rules left
+                if (existingAllocationRule.rules.length === 0) {
+                    const updatedRules = allocationRules.filter(ar => ar.allocation !== allocationName);
+                    updateStrategy({
+                        ...strategy,
+                        allocation_rules: updatedRules
+                    });
+                } else {
+                    updateStrategy({
+                        ...strategy,
+                        allocation_rules: allocationRules
+                    });
+                }
             }
         }
     }, [strategy, updateStrategy]);
@@ -509,7 +562,16 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
                 chain.includes(ar.allocation)
             );
             const chainRuleNames = new Set<string>();
-            chainAllocationRules.forEach(ar => ar.rules.forEach(r => chainRuleNames.add(r)));
+            chainAllocationRules.forEach(ar => {
+                if (typeof ar.rules === 'string') {
+                    // Parse expression to extract rule names
+                    const ruleNames = ar.rules.split(/\s+(?:AND|OR)\s+/);
+                    ruleNames.forEach(r => chainRuleNames.add(r.trim()));
+                } else {
+                    // Legacy array format
+                    ar.rules.forEach(r => chainRuleNames.add(r));
+                }
+            });
 
             const chainSwitchingLogic = strategy.switching_logic.filter(rule =>
                 chainRuleNames.has(rule.name || '')
@@ -612,6 +674,7 @@ export const useTacticalStrategy = (defaultStrategy: StrategyDSL = DEFAULT_DSL) 
         addAllocation,
         addAllocationWithAssets,
         deleteAllocation,
+        duplicateAllocation,
         renameAllocation,
         updateAllocation,
         removeSymbolFromAllocation,

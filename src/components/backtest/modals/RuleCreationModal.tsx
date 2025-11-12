@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { SwitchingRule, Condition } from '../../../types/strategy';
 
 interface RuleCreationModalProps {
@@ -7,41 +7,129 @@ interface RuleCreationModalProps {
     onCreate: (rule: Partial<SwitchingRule>) => void;
 }
 
+// Map each indicator to its compatibility group(s)
+// Indicators in the same group can be logically compared (same units/scale)
+const INDICATOR_TO_GROUP: Record<string, string[]> = {
+    SMA: ['PRICE_BASED'],
+    EMA: ['PRICE_BASED'],
+    PRICE: ['PRICE_BASED'],
+    RSI: ['PERCENTAGE'],
+    RETURN: ['PERCENTAGE'],
+    VOLATILITY: ['PERCENTAGE'],
+    DRAWDOWN: ['PERCENTAGE'],
+    VIX: ['YIELD'],
+    T10Y: ['YIELD'],
+    T2Y: ['YIELD'],
+    T3M: ['YIELD'],
+    MONTH: ['CALENDAR'],
+    DAY_OF_WEEK: ['CALENDAR'],
+    DAY_OF_MONTH: ['CALENDAR'],
+    DAY_OF_YEAR: ['CALENDAR'],
+    MACD: ['MOMENTUM', 'PERCENTAGE'], // MACD can compare to zero or other MACD
+    THRESHOLD: ['UNIVERSAL'],
+};
+
+// Check if two indicators are compatible for comparison
+const areIndicatorsCompatible = (left: string, right: string): boolean => {
+    // THRESHOLD is compatible with everything
+    if (left === 'THRESHOLD' || right === 'THRESHOLD') return true;
+
+    const leftGroups = INDICATOR_TO_GROUP[left] || [];
+    const rightGroups = INDICATOR_TO_GROUP[right] || [];
+
+    // Check if they share any group
+    return leftGroups.some(group => rightGroups.includes(group));
+};
+
 const RULE_TEMPLATES = {
     sma_cross: {
         name: 'SMA Crossover',
-        rule_type: 'buy' as const,
+        rule_type: 'buy' as const, // Legacy field, actual logic in condition
         condition: {
             left: { type: 'SMA', symbol: 'SPY', window: 50 },
             comparison: '>' as const,
             right: { type: 'SMA', symbol: 'SPY', window: 200 },
         },
     },
-    momentum: {
-        name: 'Momentum Signal',
+    ema_cross: {
+        name: 'EMA Crossover',
         rule_type: 'buy' as const,
         condition: {
-            left: { type: 'MOMENTUM', symbol: 'SPY', trading_days: 60 },
+            left: { type: 'EMA', symbol: 'SPY', window: 12 },
+            comparison: '>' as const,
+            right: { type: 'EMA', symbol: 'SPY', window: 26 },
+        },
+    },
+    momentum: {
+        name: 'Positive Momentum',
+        rule_type: 'buy' as const,
+        condition: {
+            left: { type: 'RETURN', symbol: 'SPY', window: 60 },
             comparison: '>' as const,
             right: { type: 'constant', value: 0 },
         },
     },
     volatility: {
-        name: 'Low Volatility',
+        name: 'High Volatility Exit',
         rule_type: 'sell' as const,
         condition: {
-            left: { type: 'VOLATILITY', symbol: 'VIX', window: 20 },
+            left: { type: 'VOLATILITY', symbol: 'SPY', window: 20 },
             comparison: '>' as const,
             right: { type: 'constant', value: 20 },
         },
     },
-    rsi: {
+    rsi_oversold: {
         name: 'RSI Oversold',
         rule_type: 'buy' as const,
         condition: {
             left: { type: 'RSI', symbol: 'SPY', window: 14 },
             comparison: '<' as const,
             right: { type: 'constant', value: 30 },
+        },
+    },
+    rsi_overbought: {
+        name: 'RSI Overbought',
+        rule_type: 'sell' as const,
+        condition: {
+            left: { type: 'RSI', symbol: 'SPY', window: 14 },
+            comparison: '>' as const,
+            right: { type: 'constant', value: 70 },
+        },
+    },
+    drawdown_limit: {
+        name: 'Drawdown Protection',
+        rule_type: 'sell' as const,
+        condition: {
+            left: { type: 'DRAWDOWN', symbol: 'SPY', window: 252 },
+            comparison: '>' as const,
+            right: { type: 'constant', value: 15 },
+        },
+    },
+    vix_spike: {
+        name: 'VIX Spike Exit',
+        rule_type: 'sell' as const,
+        condition: {
+            left: { type: 'VIX', symbol: '^VIX', window: 1 },
+            comparison: '>' as const,
+            right: { type: 'constant', value: 30 },
+        },
+    },
+    yield_curve: {
+        name: 'Yield Curve Inversion',
+        rule_type: 'sell' as const,
+        condition: {
+            left: { type: 'T10Y', symbol: '^TNX', window: 1 },
+            comparison: '<' as const,
+            right: { type: 'T2Y', symbol: '^UST2Y', window: 1 },
+        },
+    },
+    seasonal_may: {
+        name: 'Sell in May',
+        rule_type: 'sell' as const,
+        condition: {
+            left: { type: 'MONTH', symbol: 'DATE', window: 1 },
+            comparison: '>=' as const,
+            right: { type: 'constant', value: 5 },
         },
     },
 };
@@ -53,7 +141,6 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
 }) => {
     const [mode, setMode] = useState<'template' | 'custom'>('template');
     const [ruleName, setRuleName] = useState('');
-    const [ruleType, setRuleType] = useState<'buy' | 'sell' | 'hold'>('buy');
 
     // Condition state
     const [leftType, setLeftType] = useState('SMA');
@@ -65,6 +152,34 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
     const [rightWindow, setRightWindow] = useState(50);
     const [rightValue, setRightValue] = useState(0);
 
+    // Get compatible right-side options based on left-side selection
+    const compatibleRightTypes = useMemo(() => {
+        const leftGroups = INDICATOR_TO_GROUP[leftType] || [];
+        const compatible: string[] = ['THRESHOLD']; // Always include threshold
+
+        // Add all indicators that share a group with the left indicator
+        Object.entries(INDICATOR_TO_GROUP).forEach(([indicator, groups]) => {
+            if (indicator !== leftType && groups.some(g => leftGroups.includes(g))) {
+                compatible.push(indicator);
+            }
+        });
+
+        return compatible;
+    }, [leftType]);
+
+    // Check if current combination is valid
+    const isValidCombination = areIndicatorsCompatible(leftType, rightType);
+
+    // Auto-reset right side to THRESHOLD if incompatible
+    const handleLeftTypeChange = (newLeftType: string) => {
+        setLeftType(newLeftType);
+
+        // If current right type becomes incompatible, reset to THRESHOLD
+        if (!areIndicatorsCompatible(newLeftType, rightType)) {
+            setRightType('THRESHOLD');
+        }
+    };
+
     if (!isOpen) return null;
 
     const handleTemplateSelect = (templateKey: keyof typeof RULE_TEMPLATES) => {
@@ -74,33 +189,67 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
     };
 
     const handleCustomCreate = () => {
-        if (!ruleName.trim()) return;
+        // Helper to check if indicator needs no params (calendar types)
+        const isCalendarType = (type: string) =>
+            ['MONTH', 'DAY_OF_WEEK', 'DAY_OF_MONTH', 'DAY_OF_YEAR'].includes(type);
 
-        // Build condition object
+        // Build left side
+        const leftSide: any = { type: leftType };
+        if (leftType === 'THRESHOLD') {
+            leftSide.value = leftWindow; // Reuse leftWindow for threshold value
+        } else if (!isCalendarType(leftType)) {
+            leftSide.symbol = leftSymbol;
+            if (leftType !== 'PRICE') {
+                leftSide.window = leftWindow;
+            }
+        }
+
+        // Build right side
+        const rightSide: any = {
+            type: rightType === 'THRESHOLD' ? 'constant' : rightType
+        };
+        if (rightType === 'THRESHOLD') {
+            rightSide.value = rightValue;
+        } else if (!isCalendarType(rightType)) {
+            rightSide.symbol = rightSymbol;
+            if (rightType !== 'PRICE') {
+                rightSide.window = rightWindow;
+            }
+        }
+
         const condition: Condition = {
-            left: {
-                type: leftType,
-                symbol: leftSymbol,
-                ...(leftType !== 'CLOSE' && leftType !== 'VALUE' && { window: leftWindow }),
-            },
+            left: leftSide,
             comparison,
-            right: {
-                type: rightType === 'VALUE' ? 'constant' : rightType,
-                ...(rightType === 'VALUE' && { value: rightValue }),
-                ...(rightType !== 'VALUE' && { symbol: rightSymbol }),
-                ...(rightType !== 'CLOSE' && rightType !== 'VALUE' && { window: rightWindow }),
-            },
+            right: rightSide,
         };
 
+        // Generate condition preview string for auto-naming
+        const leftPreview = leftType === 'PRICE'
+            ? `PRICE(${leftSymbol})`
+            : leftType === 'THRESHOLD'
+                ? leftWindow.toString()
+                : isCalendarType(leftType)
+                    ? leftType
+                    : `${leftType}(${leftSymbol}, ${leftWindow})`;
+
+        const rightPreview = rightType === 'PRICE'
+            ? `PRICE(${rightSymbol})`
+            : rightType === 'THRESHOLD'
+                ? rightValue.toString()
+                : isCalendarType(rightType)
+                    ? rightType
+                    : `${rightType}(${rightSymbol}, ${rightWindow})`;
+
+        const generatedName = `${leftPreview} ${comparison} ${rightPreview}`;
+
         onCreate({
-            name: ruleName,
-            rule_type: ruleType,
+            name: ruleName.trim() || generatedName, // Use provided name or auto-generate
+            rule_type: 'buy', // Default to buy, actual logic determined by condition
             condition,
         });
 
         // Reset form
         setRuleName('');
-        setRuleType('buy');
         setLeftType('SMA');
         setLeftSymbol('SPY');
         setLeftWindow(20);
@@ -111,10 +260,11 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
         setRightValue(0);
         setMode('template');
         onClose();
-    }; const handleClose = () => {
+    };
+
+    const handleClose = () => {
         setMode('template');
         setRuleName('');
-        setRuleType('buy');
         onClose();
     };
 
@@ -173,19 +323,9 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-bold text-slate-900 group-hover:text-purple-700">
-                                                    {template.name}
-                                                </h3>
-                                                <span
-                                                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${template.rule_type === 'buy'
-                                                        ? 'bg-emerald-100 text-emerald-700'
-                                                        : 'bg-red-100 text-red-700'
-                                                        }`}
-                                                >
-                                                    {template.rule_type}
-                                                </span>
-                                            </div>
+                                            <h3 className="font-bold text-slate-900 group-hover:text-purple-700">
+                                                {template.name}
+                                            </h3>
                                             <p className="text-sm text-slate-600 mt-1">
                                                 {template.condition.left.type} {template.condition.comparison}{' '}
                                                 {template.condition.right.type === 'constant'
@@ -214,51 +354,15 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                             {/* Rule Name */}
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Rule Name
+                                    Rule Name <span className="text-slate-500 text-xs font-normal">(optional)</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={ruleName}
                                     onChange={(e) => setRuleName(e.target.value)}
-                                    placeholder="e.g., Bull Market Signal"
+                                    placeholder="Auto-generated from condition if left blank"
                                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 />
-                            </div>
-
-                            {/* Rule Type */}
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Rule Type
-                                </label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    <button
-                                        onClick={() => setRuleType('buy')}
-                                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${ruleType === 'buy'
-                                            ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-500'
-                                            : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-300'
-                                            }`}
-                                    >
-                                        Buy
-                                    </button>
-                                    <button
-                                        onClick={() => setRuleType('sell')}
-                                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${ruleType === 'sell'
-                                            ? 'bg-red-100 text-red-700 border-2 border-red-500'
-                                            : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-300'
-                                            }`}
-                                    >
-                                        Sell
-                                    </button>
-                                    <button
-                                        onClick={() => setRuleType('hold')}
-                                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${ruleType === 'hold'
-                                            ? 'bg-blue-100 text-blue-700 border-2 border-blue-500'
-                                            : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-300'
-                                            }`}
-                                    >
-                                        Hold
-                                    </button>
-                                </div>
                             </div>
 
                             {/* Condition Builder */}
@@ -273,35 +377,59 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                     <div className="grid grid-cols-3 gap-2">
                                         <select
                                             value={leftType}
-                                            onChange={(e) => setLeftType(e.target.value)}
+                                            onChange={(e) => handleLeftTypeChange(e.target.value)}
                                             className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                         >
-                                            <option value="SMA">SMA</option>
-                                            <option value="EMA">EMA</option>
-                                            <option value="RSI">RSI</option>
-                                            <option value="MACD">MACD</option>
-                                            <option value="CLOSE">CLOSE</option>
-                                            <option value="VALUE">VALUE</option>
+                                            <optgroup label="Technical Indicators">
+                                                <option value="SMA">SMA - Simple Moving Avg</option>
+                                                <option value="EMA">EMA - Exponential Moving Avg</option>
+                                                <option value="RSI">RSI - Relative Strength Index</option>
+                                                <option value="MACD">MACD - Moving Avg Convergence</option>
+                                            </optgroup>
+                                            <optgroup label="Price & Returns">
+                                                <option value="PRICE">PRICE - Close Price</option>
+                                                <option value="RETURN">RETURN - Percent Change</option>
+                                            </optgroup>
+                                            <optgroup label="Risk Metrics">
+                                                <option value="VOLATILITY">VOLATILITY - Annualized StdDev</option>
+                                                <option value="DRAWDOWN">DRAWDOWN - Percent Drawdown</option>
+                                            </optgroup>
+                                            <optgroup label="Market Indicators">
+                                                <option value="VIX">VIX - Volatility Index</option>
+                                                <option value="T10Y">T10Y - 10Y Treasury Yield</option>
+                                                <option value="T2Y">T2Y - 2Y Treasury Yield</option>
+                                                <option value="T3M">T3M - 3M Treasury Yield</option>
+                                            </optgroup>
+                                            <optgroup label="Calendar">
+                                                <option value="MONTH">MONTH - Month Number</option>
+                                                <option value="DAY_OF_WEEK">DAY_OF_WEEK - Weekday Number</option>
+                                                <option value="DAY_OF_MONTH">DAY_OF_MONTH - Day in Month</option>
+                                                <option value="DAY_OF_YEAR">DAY_OF_YEAR - Day in Year</option>
+                                            </optgroup>
+                                            <optgroup label="Other">
+                                                <option value="THRESHOLD">THRESHOLD - Constant Value</option>
+                                            </optgroup>
                                         </select>
-                                        {leftType !== 'CLOSE' && leftType !== 'VALUE' && (
-                                            <>
-                                                <input
-                                                    type="text"
-                                                    value={leftSymbol}
-                                                    onChange={(e) => setLeftSymbol(e.target.value)}
-                                                    placeholder="Symbol"
-                                                    className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    value={leftWindow}
-                                                    onChange={(e) => setLeftWindow(parseInt(e.target.value) || 0)}
-                                                    placeholder="Window"
-                                                    className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                />
-                                            </>
-                                        )}
-                                        {leftType === 'CLOSE' && (
+                                        {leftType !== 'PRICE' && leftType !== 'THRESHOLD' && leftType !== 'MONTH' &&
+                                            leftType !== 'DAY_OF_WEEK' && leftType !== 'DAY_OF_MONTH' && leftType !== 'DAY_OF_YEAR' && (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        value={leftSymbol}
+                                                        onChange={(e) => setLeftSymbol(e.target.value)}
+                                                        placeholder="Symbol"
+                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        value={leftWindow}
+                                                        onChange={(e) => setLeftWindow(parseInt(e.target.value) || 0)}
+                                                        placeholder="Window"
+                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    />
+                                                </>
+                                            )}
+                                        {leftType === 'PRICE' && (
                                             <input
                                                 type="text"
                                                 value={leftSymbol}
@@ -310,15 +438,21 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                 className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                             />
                                         )}
-                                        {leftType === 'VALUE' && (
+                                        {leftType === 'THRESHOLD' && (
                                             <input
-                                                type="text"
-                                                value={leftSymbol}
-                                                onChange={(e) => setLeftSymbol(e.target.value)}
-                                                placeholder="Numeric value"
+                                                type="number"
+                                                value={leftWindow}
+                                                onChange={(e) => setLeftWindow(parseFloat(e.target.value) || 0)}
+                                                placeholder="Constant value"
                                                 className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                             />
                                         )}
+                                        {(leftType === 'MONTH' || leftType === 'DAY_OF_WEEK' ||
+                                            leftType === 'DAY_OF_MONTH' || leftType === 'DAY_OF_YEAR') && (
+                                                <div className="col-span-2 px-2 py-1.5 text-slate-500 text-sm italic">
+                                                    No parameters needed
+                                                </div>
+                                            )}
                                     </div>
                                 </div>
 
@@ -348,32 +482,88 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                             onChange={(e) => setRightType(e.target.value)}
                                             className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                         >
-                                            <option value="SMA">SMA</option>
-                                            <option value="EMA">EMA</option>
-                                            <option value="RSI">RSI</option>
-                                            <option value="MACD">MACD</option>
-                                            <option value="CLOSE">CLOSE</option>
-                                            <option value="VALUE">VALUE</option>
+                                            <optgroup label="Technical Indicators">
+                                                <option value="SMA" disabled={!compatibleRightTypes.includes('SMA')}>
+                                                    SMA - Simple Moving Avg
+                                                </option>
+                                                <option value="EMA" disabled={!compatibleRightTypes.includes('EMA')}>
+                                                    EMA - Exponential Moving Avg
+                                                </option>
+                                                <option value="RSI" disabled={!compatibleRightTypes.includes('RSI')}>
+                                                    RSI - Relative Strength Index
+                                                </option>
+                                                <option value="MACD" disabled={!compatibleRightTypes.includes('MACD')}>
+                                                    MACD - Moving Avg Convergence
+                                                </option>
+                                            </optgroup>
+                                            <optgroup label="Price & Returns">
+                                                <option value="PRICE" disabled={!compatibleRightTypes.includes('PRICE')}>
+                                                    PRICE - Close Price
+                                                </option>
+                                                <option value="RETURN" disabled={!compatibleRightTypes.includes('RETURN')}>
+                                                    RETURN - Percent Change
+                                                </option>
+                                            </optgroup>
+                                            <optgroup label="Risk Metrics">
+                                                <option value="VOLATILITY" disabled={!compatibleRightTypes.includes('VOLATILITY')}>
+                                                    VOLATILITY - Annualized StdDev
+                                                </option>
+                                                <option value="DRAWDOWN" disabled={!compatibleRightTypes.includes('DRAWDOWN')}>
+                                                    DRAWDOWN - Percent Drawdown
+                                                </option>
+                                            </optgroup>
+                                            <optgroup label="Market Indicators">
+                                                <option value="VIX" disabled={!compatibleRightTypes.includes('VIX')}>
+                                                    VIX - Volatility Index
+                                                </option>
+                                                <option value="T10Y" disabled={!compatibleRightTypes.includes('T10Y')}>
+                                                    T10Y - 10Y Treasury Yield
+                                                </option>
+                                                <option value="T2Y" disabled={!compatibleRightTypes.includes('T2Y')}>
+                                                    T2Y - 2Y Treasury Yield
+                                                </option>
+                                                <option value="T3M" disabled={!compatibleRightTypes.includes('T3M')}>
+                                                    T3M - 3M Treasury Yield
+                                                </option>
+                                            </optgroup>
+                                            <optgroup label="Calendar">
+                                                <option value="MONTH" disabled={!compatibleRightTypes.includes('MONTH')}>
+                                                    MONTH - Month Number
+                                                </option>
+                                                <option value="DAY_OF_WEEK" disabled={!compatibleRightTypes.includes('DAY_OF_WEEK')}>
+                                                    DAY_OF_WEEK - Weekday Number
+                                                </option>
+                                                <option value="DAY_OF_MONTH" disabled={!compatibleRightTypes.includes('DAY_OF_MONTH')}>
+                                                    DAY_OF_MONTH - Day in Month
+                                                </option>
+                                                <option value="DAY_OF_YEAR" disabled={!compatibleRightTypes.includes('DAY_OF_YEAR')}>
+                                                    DAY_OF_YEAR - Day in Year
+                                                </option>
+                                            </optgroup>
+                                            <optgroup label="Other">
+                                                <option value="THRESHOLD">THRESHOLD - Constant Value</option>
+                                            </optgroup>
                                         </select>
-                                        {rightType !== 'CLOSE' && rightType !== 'VALUE' && (
-                                            <>
-                                                <input
-                                                    type="text"
-                                                    value={rightSymbol}
-                                                    onChange={(e) => setRightSymbol(e.target.value)}
-                                                    placeholder="Symbol"
-                                                    className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    value={rightWindow}
-                                                    onChange={(e) => setRightWindow(parseInt(e.target.value) || 0)}
-                                                    placeholder="Window"
-                                                    className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                />
-                                            </>
-                                        )}
-                                        {rightType === 'CLOSE' && (
+                                        {rightType !== 'PRICE' && rightType !== 'THRESHOLD' && rightType !== 'MONTH' &&
+                                            rightType !== 'DAY_OF_WEEK' && rightType !== 'DAY_OF_MONTH' && rightType !== 'DAY_OF_YEAR' && (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        value={rightSymbol}
+                                                        onChange={(e) => setRightSymbol(e.target.value)}
+                                                        placeholder="Symbol"
+                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        value={rightWindow}
+                                                        onChange={(e) => setRightWindow(parseInt(e.target.value) || 0)}
+                                                        placeholder="Window"
+                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    />
+                                                </>
+                                            )}
+                                        {rightType === 'PRICE' && (
                                             <input
                                                 type="text"
                                                 value={rightSymbol}
@@ -382,17 +572,42 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                 className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                             />
                                         )}
-                                        {rightType === 'VALUE' && (
+                                        {rightType === 'THRESHOLD' && (
                                             <input
                                                 type="number"
                                                 value={rightValue}
                                                 onChange={(e) => setRightValue(parseFloat(e.target.value) || 0)}
-                                                placeholder="Numeric value"
+                                                placeholder="Constant value"
                                                 className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                             />
                                         )}
+                                        {(rightType === 'MONTH' || rightType === 'DAY_OF_WEEK' ||
+                                            rightType === 'DAY_OF_MONTH' || rightType === 'DAY_OF_YEAR') && (
+                                                <div className="col-span-2 px-2 py-1.5 text-slate-500 text-sm italic">
+                                                    No parameters needed
+                                                </div>
+                                            )}
                                     </div>
                                 </div>
+
+                                {/* Validation Warning */}
+                                {!isValidCombination && (
+                                    <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                                        <div className="flex items-start gap-2">
+                                            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-amber-800">Invalid Comparison</p>
+                                                <p className="text-xs text-amber-700 mt-1">
+                                                    {leftType} and {rightType} are not compatible.
+                                                    {leftType} values are measured in different units than {rightType}.
+                                                    Consider comparing to THRESHOLD instead.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Condition Preview */}
                                 <div className="bg-slate-900 p-3 rounded-lg border border-slate-300">
@@ -400,17 +615,21 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                         CONDITION PREVIEW
                                     </label>
                                     <code className="text-sm text-emerald-400 font-mono">
-                                        {leftType === 'CLOSE'
-                                            ? `CLOSE(${leftSymbol})`
-                                            : leftType === 'VALUE'
-                                                ? leftSymbol
-                                                : `${leftType}(${leftSymbol}, ${leftWindow})`}
+                                        {leftType === 'PRICE'
+                                            ? `PRICE(${leftSymbol})`
+                                            : leftType === 'THRESHOLD'
+                                                ? leftWindow
+                                                : ['MONTH', 'DAY_OF_WEEK', 'DAY_OF_MONTH', 'DAY_OF_YEAR'].includes(leftType)
+                                                    ? leftType
+                                                    : `${leftType}(${leftSymbol}, ${leftWindow})`}
                                         {' '}{comparison}{' '}
-                                        {rightType === 'CLOSE'
-                                            ? `CLOSE(${rightSymbol})`
-                                            : rightType === 'VALUE'
+                                        {rightType === 'PRICE'
+                                            ? `PRICE(${rightSymbol})`
+                                            : rightType === 'THRESHOLD'
                                                 ? rightValue
-                                                : `${rightType}(${rightSymbol}, ${rightWindow})`}
+                                                : ['MONTH', 'DAY_OF_WEEK', 'DAY_OF_MONTH', 'DAY_OF_YEAR'].includes(rightType)
+                                                    ? rightType
+                                                    : `${rightType}(${rightSymbol}, ${rightWindow})`}
                                     </code>
                                 </div>
                             </div>
@@ -418,10 +637,10 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                             {/* Create Button */}
                             <button
                                 onClick={handleCustomCreate}
-                                disabled={!ruleName.trim()}
+                                disabled={!isValidCombination}
                                 className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all"
                             >
-                                Create Rule
+                                {!isValidCombination ? 'Invalid Indicator Combination' : 'Create Rule'}
                             </button>
                         </div>
                     )}

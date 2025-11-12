@@ -9,6 +9,17 @@ interface JsonEditorModalProps {
     strategyChains?: string[][];
 }
 
+// Display format for rules with explicit AND/OR connections
+interface DisplayAllocationRule {
+    allocation: string;
+    rules: Array<{ rule: string; operator?: 'AND' | 'OR' }>;
+}
+
+interface DisplayStrategy extends Omit<StrategyDSL, 'allocation_rules'> {
+    name: string;
+    allocation_rules?: DisplayAllocationRule[];
+}
+
 export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
     isOpen,
     onClose,
@@ -22,9 +33,83 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
     const [viewMode, setViewMode] = useState<'individual' | 'all'>('individual');
 
     // Build individual strategy objects for each chain
-    const buildIndividualStrategies = (): Array<StrategyDSL & { name: string }> => {
+    const buildIndividualStrategies = (): DisplayStrategy[] => {
         if (strategyChains.length === 0) {
-            return [{ ...strategy, name: 'Full Strategy' }];
+            // Detect orphan nodes (allocations with rules but not in any chain)
+            const allAllocations = Object.keys(strategy.allocations);
+            const orphanNodes: string[] = [];
+
+            // Check each allocation to see if it has rules but no chain
+            allAllocations.forEach(allocName => {
+                const hasRules = strategy.allocation_rules?.some(ar => {
+                    if (ar.allocation !== allocName) return false;
+                    return typeof ar.rules === 'string'
+                        ? ar.rules.length > 0
+                        : ar.rules.length > 0;
+                });
+
+                // If has rules but is the fallback, it's orphaned
+                if (hasRules && strategy.fallback_allocation === allocName) {
+                    orphanNodes.push(allocName);
+                }
+            });
+
+            // Build allocations object with implicit CASH fallback for orphans
+            let displayAllocations = { ...strategy.allocations };
+            if (orphanNodes.length > 0) {
+                // Add implicit CASH allocation if it doesn't exist
+                if (!displayAllocations['CASH']) {
+                    displayAllocations = {
+                        ...displayAllocations,
+                        CASH: {
+                            allocation: { CASH: 1.0 },
+                            rebalancing_frequency: undefined
+                        }
+                    };
+                }
+            }
+
+            // Convert full strategy to display format
+            const displayAllocationRules = (strategy.allocation_rules || []).map(ar => {
+                if (typeof ar.rules === 'string') {
+                    // Parse expression into structured format
+                    const parts = ar.rules.split(/\s+(AND|OR)\s+/);
+                    const structured: Array<{ rule: string; operator?: 'AND' | 'OR' }> = [];
+
+                    for (let i = 0; i < parts.length; i += 2) {
+                        const rule = parts[i].trim();
+                        const operator = parts[i + 1] as 'AND' | 'OR' | undefined;
+                        structured.push({ rule, ...(operator && { operator }) });
+                    }
+
+                    return {
+                        allocation: ar.allocation,
+                        rules: structured
+                    };
+                }
+                // Legacy array format - convert to structured
+                return {
+                    allocation: ar.allocation,
+                    rules: ar.rules.map((r, idx) => ({
+                        rule: r,
+                        ...(idx < ar.rules.length - 1 && { operator: 'OR' as const })
+                    }))
+                };
+            });
+
+            // Determine fallback - if there are orphans, fallback is CASH
+            let displayFallback = strategy.fallback_allocation;
+            if (orphanNodes.length > 0) {
+                displayFallback = 'CASH';
+            }
+
+            return [{
+                ...strategy,
+                name: 'Full Strategy',
+                allocations: displayAllocations,
+                fallback_allocation: displayFallback,
+                allocation_rules: displayAllocationRules
+            }];
         }
 
         return strategyChains.map((chain, index) => {
@@ -35,22 +120,80 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                 }
             });
 
+            // Check if this is an orphan single node with rules
+            const isOrphanWithRules = chain.length === 1 && (() => {
+                const allocationRule = strategy.allocation_rules?.find(ar => ar.allocation === chain[0]);
+                return allocationRule && (typeof allocationRule.rules === 'string'
+                    ? allocationRule.rules.length > 0
+                    : allocationRule.rules.length > 0);
+            })();
+
+            // If orphan with rules, add implicit CASH fallback
+            if (isOrphanWithRules && !chainAllocations['CASH']) {
+                chainAllocations['CASH'] = {
+                    allocation: { CASH: 1.0 },
+                    rebalancing_frequency: undefined
+                };
+            }
+
             // Determine fallback for this chain
             let chainFallback = chain[chain.length - 1];
-            for (const name of chain) {
-                const allocationRule = strategy.allocation_rules?.find(ar => ar.allocation === name);
-                if (!allocationRule || allocationRule.rules.length === 0) {
-                    chainFallback = name;
-                    break;
+
+            if (isOrphanWithRules) {
+                // Orphan nodes with rules fall back to CASH
+                chainFallback = 'CASH';
+            } else {
+                // Normal chain logic
+                for (const name of chain) {
+                    const allocationRule = strategy.allocation_rules?.find(ar => ar.allocation === name);
+                    const hasRules = allocationRule
+                        ? (typeof allocationRule.rules === 'string'
+                            ? allocationRule.rules.length > 0
+                            : allocationRule.rules.length > 0)
+                        : false;
+                    if (!hasRules) {
+                        chainFallback = name;
+                        break;
+                    }
                 }
             }
 
-            // Filter rules for this chain
-            const chainAllocationRules = (strategy.allocation_rules || []).filter(ar =>
-                chain.includes(ar.allocation)
-            );
+            // Filter rules for this chain and convert string expressions to structured format
+            const chainAllocationRules = (strategy.allocation_rules || [])
+                .filter(ar => chain.includes(ar.allocation))
+                .map(ar => {
+                    if (typeof ar.rules === 'string') {
+                        // Parse expression into structured format
+                        const parts = ar.rules.split(/\s+(AND|OR)\s+/);
+                        const structured: Array<{ rule: string; operator?: 'AND' | 'OR' }> = [];
+
+                        for (let i = 0; i < parts.length; i += 2) {
+                            const rule = parts[i].trim();
+                            const operator = parts[i + 1] as 'AND' | 'OR' | undefined;
+                            structured.push({ rule, ...(operator && { operator }) });
+                        }
+
+                        return {
+                            allocation: ar.allocation,
+                            rules: structured
+                        };
+                    }
+                    // Legacy array format - convert to structured
+                    return {
+                        allocation: ar.allocation,
+                        rules: ar.rules.map((r, idx) => ({
+                            rule: r,
+                            ...(idx < ar.rules.length - 1 && { operator: 'OR' as const })
+                        }))
+                    };
+                });
+
             const chainRuleNames = new Set<string>();
-            chainAllocationRules.forEach(ar => ar.rules.forEach(r => chainRuleNames.add(r)));
+            chainAllocationRules.forEach(ar => {
+                (ar.rules as any).forEach((ruleItem: any) => {
+                    chainRuleNames.add(ruleItem.rule);
+                });
+            });
 
             const chainSwitchingLogic = strategy.switching_logic.filter(rule =>
                 chainRuleNames.has(rule.name || '')
@@ -162,8 +305,8 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                                 <button
                                     onClick={() => setViewMode('individual')}
                                     className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'individual'
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'text-slate-600 hover:text-slate-900'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                 >
                                     Individual Strategy
@@ -171,8 +314,8 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                                 <button
                                     onClick={() => setViewMode('all')}
                                     className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'all'
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'text-slate-600 hover:text-slate-900'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                 >
                                     All Strategies ({strategyChains.length})
