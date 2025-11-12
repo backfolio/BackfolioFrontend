@@ -197,19 +197,16 @@ const Backtest = () => {
                         )}
 
                         {/* Run Button - Fixed Bottom with safe spacing */}
-                        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50">
+                        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-40">
                             <button
                                 onClick={runBacktest}
                                 disabled={loading}
-                                className="group relative px-10 py-4 font-bold text-base rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center gap-3 disabled:cursor-not-allowed disabled:opacity-70"
+                                className="group relative px-8 py-3 text-sm font-medium rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5"
                             >
-                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
-                                <span>Run Backtest Analysis</span>
-                                <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
+                                <span>Run Backtest</span>
                             </button>
                         </div>
                     </div>

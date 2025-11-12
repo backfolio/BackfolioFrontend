@@ -42,9 +42,9 @@ const BacktestResultsModal: React.FC<BacktestResultsModalProps> = ({ results, on
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xl p-4">
-            <div className="bg-white border border-gray-200 rounded-3xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="bg-white border border-gray-200 rounded-3xl shadow-2xl w-full max-w-7xl h-[95vh] overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className="relative px-8 py-6 border-b border-gray-200">
+                <div className="relative px-8 py-6 border-b border-gray-200 flex-shrink-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 via-purple-500/5 to-blue-500/5"></div>
                     <div className="absolute top-0 left-20 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl"></div>
                     <div className="absolute top-0 right-20 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
@@ -106,7 +106,7 @@ const BacktestResultsModal: React.FC<BacktestResultsModalProps> = ({ results, on
                 </div>
 
                 {/* Tabs */}
-                <div className="border-b border-gray-200 px-8 bg-gray-50 backdrop-blur-xl">
+                <div className="border-b border-gray-200 px-8 bg-gray-50 backdrop-blur-xl flex-shrink-0">
                     <div className="flex gap-2">
                         {[
                             { id: 'overview', label: 'Overview', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg> },
@@ -118,8 +118,8 @@ const BacktestResultsModal: React.FC<BacktestResultsModalProps> = ({ results, on
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as TabType)}
                                 className={`px-5 py-3 font-medium text-sm rounded-t-xl transition-all duration-300 flex items-center gap-2 ${activeTab === tab.id
-                                        ? 'bg-white text-gray-900 border-b-2 border-primary-500'
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                    ? 'bg-white text-gray-900 border-b-2 border-primary-500'
+                                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                                     }`}
                             >
                                 {tab.icon}
