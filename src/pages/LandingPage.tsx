@@ -96,16 +96,14 @@ const LandingPage = () => {
                     </div>
 
                     <h1 className="text-7xl lg:text-8xl xl:text-9xl font-bold text-white mb-10 leading-[0.9] tracking-[-0.04em]">
-                        Intelligent
+                        Build Tactical
                         <span className="block bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent mt-3">
-                            Portfolio Analytics
+                            Strategies Visually
                         </span>
                     </h1>
 
                     <p className="text-xl lg:text-2xl text-white/50 max-w-3xl mx-auto mb-16 leading-relaxed font-normal tracking-wide">
-                        Transform your investment strategies with AI-powered backtesting and real-time analytics.
-                        <span className="text-white/70"> Discover what works, optimize performance,</span> and build
-                        institutional-grade portfolios with confidence.
+                        Design dynamic portfolio strategies with conditional rules. <span className="text-white/70">Switch allocations automatically based on market indicators</span>—no coding required.
                     </p>
 
                     {/* Stats Bar */}
@@ -168,87 +166,189 @@ const LandingPage = () => {
                 </div>
             </div>
 
-            {/* Features Section */}
+            {/* How It Works Section */}
             <section id="features" className="relative py-32 bg-black">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-24">
+                    <div className="text-center mb-20">
                         <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-sm font-medium text-white/70 mb-8">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            Platform Features
+                            How It Works
                         </div>
                         <h2 className="text-6xl lg:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-[-0.02em]">
-                            Everything you need to build
+                            Three steps to
                             <span className="block text-white/60 mt-2">
-                                smarter portfolios
+                                smarter strategies
                             </span>
                         </h2>
-                        <p className="text-xl text-white/40 max-w-3xl mx-auto leading-relaxed">
-                            From simple backtests to advanced portfolio monitoring, we've got the institutional-grade tools
-                            to elevate your investment strategy.
-                        </p>
                     </div>
 
+                    {/* Visual Steps */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-32">
+                        {/* Step 1 */}
+                        <div className="relative group">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
+                            <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-3xl p-10 border border-white/10 hover:border-white/20 transition-all duration-500">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-purple-500/30">
+                                        1
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-semibold text-white tracking-tight">Create Portfolio Nodes</h3>
+                                        <p className="text-sm text-white/40">Define your allocations</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 rounded-2xl p-6 mb-6 border border-white/10">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                        <span className="text-white/70 text-sm font-medium">Conservative Portfolio</span>
+                                    </div>
+                                    <div className="space-y-2 text-sm font-mono text-white/60">
+                                        <div className="flex justify-between">
+                                            <span>SPY (S&P 500)</span>
+                                            <span className="text-white/80">60%</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>TLT (Bonds)</span>
+                                            <span className="text-white/80">40%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p className="text-white/50 text-sm leading-relaxed">
+                                    Drag nodes onto the canvas and configure your asset allocations. Visually design your portfolio mix with any combination of ETFs, stocks, or indices.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="relative group">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
+                            <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-3xl p-10 border border-white/10 hover:border-white/20 transition-all duration-500">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-500/30">
+                                        2
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-semibold text-white tracking-tight">Define Switching Rules</h3>
+                                        <p className="text-sm text-white/40">Set market conditions</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 rounded-2xl p-6 mb-6 border border-white/10">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        <span className="text-white/70 text-sm font-medium">Risk-Off Rule</span>
+                                    </div>
+                                    <div className="text-sm font-mono text-center py-3 bg-black/30 rounded-lg">
+                                        <span className="text-purple-400">SMA</span>
+                                        <span className="text-white/60">(SPY, 50d)</span>
+                                        <span className="text-white/90 mx-2">&lt;</span>
+                                        <span className="text-blue-400">SMA</span>
+                                        <span className="text-white/60">(SPY, 200d)</span>
+                                    </div>
+                                </div>
+                                <p className="text-white/50 text-sm leading-relaxed">
+                                    Create conditional rules using SMA, RSI, momentum, and more. Set precise thresholds that trigger portfolio switches based on real market data.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="relative group">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
+                            <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-3xl p-10 border border-white/10 hover:border-white/20 transition-all duration-500">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-green-500/30">
+                                        3
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-semibold text-white tracking-tight">Connect & Backtest</h3>
+                                        <p className="text-sm text-white/40">Test historical performance</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 rounded-2xl p-6 mb-6 border border-white/10">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-sm text-white/60">Annualized Return</span>
+                                        <span className="text-xl font-bold text-green-400">+12.4%</span>
+                                    </div>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-sm text-white/60">Max Drawdown</span>
+                                        <span className="text-xl font-bold text-red-400">-8.2%</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-white/60">Sharpe Ratio</span>
+                                        <span className="text-xl font-bold text-blue-400">1.85</span>
+                                    </div>
+                                </div>
+                                <p className="text-white/50 text-sm leading-relaxed">
+                                    Link portfolios with arrows and run comprehensive backtests against historical data. See exactly how your strategy would have performed.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Feature Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="group p-10 bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-500">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white/10 transition-all duration-300">
-                                <svg className="w-7 h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.03] transition-all duration-500">
+                            <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-500/20 transition-all">
+                                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white mb-4 tracking-tight">AI-Powered Backtesting</h3>
-                            <p className="text-base text-white/50 leading-relaxed">Describe your strategy in plain English and watch our AI build comprehensive backtests with institutional-grade historical data analysis.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Real-Time Alerts</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Get instant notifications via SMS or email when it's time to rebalance or switch allocations based on your rules.</p>
                         </div>
 
-                        <div className="group p-10 bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-500">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white/10 transition-all duration-300">
-                                <svg className="w-7 h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-white/[0.03] transition-all duration-500">
+                            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-500/20 transition-all">
+                                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white mb-4 tracking-tight">Real-Time Monitoring</h3>
-                            <p className="text-base text-white/50 leading-relaxed">Track your deployed strategies with live market updates and receive instant alerts when rebalancing opportunities arise.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">AI Strategy Enhancement</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Let AI analyze your strategy and suggest optimizations, parameter adjustments, and alternative approaches.</p>
                         </div>
 
-                        <div className="group p-10 bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-500">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white/10 transition-all duration-300">
-                                <svg className="w-7 h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-green-500/30 hover:bg-white/[0.03] transition-all duration-500">
+                            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-500/20 transition-all">
+                                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white mb-4 tracking-tight">Advanced Risk Analysis</h3>
-                            <p className="text-base text-white/50 leading-relaxed">Sophisticated Monte Carlo simulations and stress testing to thoroughly understand your portfolio's risk profile and potential outcomes.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Monte Carlo Simulations</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Run forward-looking probabilistic simulations to understand potential future outcomes and risk scenarios.</p>
                         </div>
 
-                        <div className="group p-10 bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-500">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white/10 transition-all duration-300">
-                                <svg className="w-7 h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-amber-500/30 hover:bg-white/[0.03] transition-all duration-500">
+                            <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-amber-500/20 transition-all">
+                                <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white mb-4 tracking-tight">AI Strategy Coach</h3>
-                            <p className="text-base text-white/50 leading-relaxed">Receive intelligent suggestions to optimize your strategies and automatically discover alternative investment approaches.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Team Collaboration</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Work together on the same canvas. Multiple team members can design and refine strategies collaboratively.</p>
                         </div>
 
-                        <div className="group p-10 bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-500">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white/10 transition-all duration-300">
-                                <svg className="w-7 h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-indigo-500/30 hover:bg-white/[0.03] transition-all duration-500">
+                            <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-500/20 transition-all">
+                                <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white mb-4 tracking-tight">Professional Reports</h3>
-                            <p className="text-base text-white/50 leading-relaxed">Generate detailed PDF reports with AI-powered commentary and insights to share with advisors or track your progress over time.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Backtest Engine API</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Programmatic access to our backtesting engine. Integrate tactical strategies into your own tools and workflows.</p>
                         </div>
 
-                        <div className="group p-10 bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-500">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white/10 transition-all duration-300">
-                                <svg className="w-7 h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-pink-500/30 hover:bg-white/[0.03] transition-all duration-500">
+                            <div className="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-pink-500/20 transition-all">
+                                <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white mb-4 tracking-tight">Community Insights</h3>
-                            <p className="text-base text-white/50 leading-relaxed">Connect with fellow investors, share strategies, learn from the community, and discover new investment approaches from experts.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Custom Events</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Define custom rebalancing schedules, portfolio switches, and event triggers beyond standard technical indicators.</p>
                         </div>
                     </div>
                 </div>
@@ -269,287 +369,262 @@ const LandingPage = () => {
                             Pricing Plans
                         </div>
                         <h2 className="text-6xl lg:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-[-0.02em]">
-                            Choose your
+                            Simple pricing for
                             <span className="block text-white/60 mt-2">
-                                investment journey
+                                powerful strategies
                             </span>
                         </h2>
                         <p className="text-xl text-white/40 max-w-3xl mx-auto leading-relaxed">
-                            From curious beginner to serious portfolio manager, we have a plan that fits your needs and grows with your ambitions.
+                            Start free and scale as your portfolio grows. No hidden fees, cancel anytime.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-                        {/* Explorer (Free) */}
-                        <div className="bg-white/[0.02] backdrop-blur-xl rounded-3xl p-10 border border-white/5 hover:border-white/10 transition-all duration-500">
-                            <div className="text-center mb-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        {/* Starter (Free) */}
+                        <div className="bg-white/[0.02] backdrop-blur-xl rounded-3xl p-8 border border-white/5 hover:border-white/10 transition-all duration-500">
+                            <div className="text-center mb-8">
                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full text-sm font-medium text-white/60 mb-6">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
-                                    Explorer
+                                    Starter
                                 </div>
                                 <div className="text-5xl font-bold text-white mb-3">Free</div>
-                                <p className="text-base text-white/50">Perfect for getting started</p>
+                                <p className="text-base text-white/50">Explore visual strategy building</p>
                             </div>
 
-                            <ul className="space-y-4 mb-8">
+                            <ul className="space-y-3 mb-8">
                                 <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-white/60 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/60">Backtest simple strategies (SMA, RSI)</span>
+                                    <span className="text-white/70 text-sm">Up to 3 portfolios per strategy</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/60">AI chat for basic strategy questions</span>
+                                    <span className="text-white/70 text-sm">3 backtests per month</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/60">3 backtests per month</span>
+                                    <span className="text-white/70 text-sm">Basic indicators (SMA, RSI)</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/60">1 saved strategy</span>
+                                    <span className="text-white/70 text-sm">1 saved strategy</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/60">Demo Monte Carlo (limited)</span>
+                                    <span className="text-white/70 text-sm">AI chat for basic questions</span>
                                 </li>
                                 <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                    <span className="text-white/60">Community sharing (view-only)</span>
+                                    <span className="text-white/40 text-sm line-through">Real-time alerts</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <span className="text-white/40 text-sm line-through">Monte Carlo simulations</span>
                                 </li>
                             </ul>
 
-                            <button className="w-full bg-white/[0.08] hover:bg-white/[0.12] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-white/20 transform hover:scale-105 border border-white/[0.15]">
+                            <button className="w-full bg-white/[0.08] hover:bg-white/[0.12] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/20 transform hover:scale-105 border border-white/[0.15]">
                                 Start Free
                             </button>
                         </div>
 
                         {/* Pro (Recommended) */}
-                        <div className="bg-white/[0.02] backdrop-blur-sm rounded-3xl p-10 border-2 border-primary-500/50 relative hover:border-primary-400 hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 transform hover:-translate-y-3 scale-105">
-                            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
-                                <div className="bg-gradient-to-r from-primary-500 via-purple-500 to-blue-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-primary-500/30">
+                        <div className="bg-white/[0.02] backdrop-blur-sm rounded-3xl p-8 border-2 border-primary-500/50 relative hover:border-primary-400 hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 transform hover:-translate-y-2 scale-105">
+                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                <div className="bg-gradient-to-r from-primary-500 via-purple-500 to-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-primary-500/30">
                                     ⭐ Most Popular
                                 </div>
                             </div>
 
-                            <div className="text-center mb-10">
+                            <div className="text-center mb-8">
                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500/20 to-purple-500/20 backdrop-blur-sm border border-primary-500/30 rounded-full text-sm font-bold text-primary-300 mb-6">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                                     </svg>
                                     Pro
                                 </div>
                                 <div className="text-5xl font-bold text-white mb-3">
-                                    $20
-                                    <span className="text-2xl font-semibold text-white/60">/month</span>
+                                    $29
+                                    <span className="text-xl font-semibold text-white/60">/mo</span>
                                 </div>
-                                <p className="text-lg text-white/70 font-medium">Your personal AI quant assistant</p>
+                                <p className="text-base text-white/70 font-medium">For serious strategy builders</p>
                             </div>
 
-                            <ul className="space-y-4 mb-8">
+                            <ul className="space-y-3 mb-8">
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Unlimited backtesting</span>
+                                    <span className="text-white/80 text-sm font-medium">Unlimited portfolios & strategies</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Tactical backtests with conditions</span>
+                                    <span className="text-white/80 text-sm font-medium">Unlimited backtests</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Full Monte Carlo & stress tests</span>
+                                    <span className="text-white/80 text-sm font-medium">All technical indicators</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Save & monitor up to 5 portfolios</span>
+                                    <span className="text-white/80 text-sm font-medium">Real-time alerts (email/SMS)</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Weekly email alerts</span>
+                                    <span className="text-white/80 text-sm font-medium">Monte Carlo simulations</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Full AI chat access</span>
+                                    <span className="text-white/80 text-sm font-medium">AI strategy enhancement</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">PDF reports with commentary</span>
+                                    <span className="text-white/80 text-sm font-medium">PDF reports with AI commentary</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Basic live dashboard (daily updates)</span>
+                                    <span className="text-white/80 text-sm font-medium">Multi-asset support (ETFs, crypto)</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/80 text-sm font-medium">Priority support</span>
                                 </li>
                             </ul>
 
-                            <button className="w-full bg-gradient-to-r from-primary-600 via-purple-600 to-blue-600 hover:from-primary-500 hover:via-purple-500 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/40 transform hover:scale-105">
+                            <button className="w-full bg-gradient-to-r from-primary-600 via-purple-600 to-blue-600 hover:from-primary-500 hover:via-purple-500 hover:to-blue-500 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/40 transform hover:scale-105">
                                 Start Pro Trial
                             </button>
                         </div>
 
-                        {/* Portfolio+ */}
-                        <div className="bg-gradient-to-br from-white/[0.02] to-purple-900/10 backdrop-blur-sm rounded-3xl p-10 border border-purple-500/30 hover:border-purple-400/50 hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-center mb-10">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm border border-purple-500/30 rounded-full text-sm font-bold text-purple-300 mb-6">
+                        {/* Team */}
+                        <div className="bg-gradient-to-br from-white/[0.02] to-indigo-900/10 backdrop-blur-sm rounded-3xl p-8 border border-indigo-500/30 hover:border-indigo-400/50 hover:shadow-xl hover:shadow-indigo-500/20 transition-all duration-300 transform hover:-translate-y-2">
+                            <div className="text-center mb-8">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-sm border border-indigo-500/30 rounded-full text-sm font-bold text-indigo-300 mb-6">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
-                                    Portfolio+
+                                    Team
                                 </div>
                                 <div className="text-5xl font-bold text-white mb-3">
-                                    $55
-                                    <span className="text-2xl font-semibold text-white/60">/month</span>
+                                    $99
+                                    <span className="text-xl font-semibold text-white/60">/mo</span>
                                 </div>
-                                <p className="text-lg text-white/70 font-medium">Run portfolios like a hedge fund</p>
+                                <p className="text-base text-white/70 font-medium">For collaborative investing</p>
                             </div>
 
-                            <ul className="space-y-4 mb-8">
+                            <ul className="space-y-3 mb-8">
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Everything in Pro, plus:</span>
+                                    <span className="text-white/80 text-sm font-medium">Everything in Pro, plus:</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Unlimited portfolios</span>
+                                    <span className="text-white/80 text-sm font-medium">Up to 5 team members</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Live (hourly) dashboard updates</span>
+                                    <span className="text-white/80 text-sm font-medium">Real-time collaboration canvas</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Real-time SMS/email alerts</span>
+                                    <span className="text-white/80 text-sm font-medium">Shared strategy workspace</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Advanced Monte Carlo (custom variables)</span>
+                                    <span className="text-white/80 text-sm font-medium">Role-based permissions</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">Multi-asset coverage (ETFs, crypto, indices)</span>
+                                    <span className="text-white/80 text-sm font-medium">Backtest engine API access</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">AI Strategy Coach (auto suggestions)</span>
+                                    <span className="text-white/80 text-sm font-medium">Custom data sources</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70">White-labeled PDF exports</span>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Priority support</span>
+                                    <span className="text-white/80 text-sm font-medium">Dedicated account manager</span>
                                 </li>
                             </ul>
 
-                            <button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/40 transform hover:scale-105">
-                                Start Portfolio+
+                            <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/40 transform hover:scale-105">
+                                Start Team Trial
                             </button>
                         </div>
+                    </div>
 
-                        {/* Enterprise */}
-                        <div className="bg-gradient-to-br from-black to-white/[0.02] rounded-3xl p-10 border border-white/[0.15] hover:border-white/30 hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-center mb-10">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] backdrop-blur-sm border border-white/[0.15] rounded-full text-sm font-bold text-white/70 mb-6">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                    Enterprise
+                    {/* Enterprise Banner */}
+                    <div className="mt-16 max-w-5xl mx-auto">
+                        <div className="bg-gradient-to-r from-white/[0.02] to-white/[0.04] backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-500">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="flex-1 text-center md:text-left">
+                                    <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
+                                        <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        <h3 className="text-2xl font-bold text-white">Enterprise</h3>
+                                    </div>
+                                    <p className="text-white/60 text-base mb-2">
+                                        Custom solutions for institutional needs. Advanced integrations, dedicated support, and tailored SLAs.
+                                    </p>
+                                    <div className="flex flex-wrap gap-3 justify-center md:justify-start mt-4">
+                                        <span className="text-xs px-3 py-1 bg-white/5 rounded-full text-white/70 border border-white/10">Custom API limits</span>
+                                        <span className="text-xs px-3 py-1 bg-white/5 rounded-full text-white/70 border border-white/10">SSO & SAML</span>
+                                        <span className="text-xs px-3 py-1 bg-white/5 rounded-full text-white/70 border border-white/10">White-label options</span>
+                                        <span className="text-xs px-3 py-1 bg-white/5 rounded-full text-white/70 border border-white/10">99.9% uptime SLA</span>
+                                    </div>
                                 </div>
-                                <div className="text-5xl font-bold text-white mb-3">
-                                    Custom
-                                </div>
-                                <p className="text-lg text-white/70 font-medium">Built for institutional scale</p>
+                                <button className="bg-white text-black font-bold py-3 px-8 rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transform hover:scale-105 whitespace-nowrap">
+                                    Contact Sales
+                                </button>
                             </div>
-
-                            <ul className="space-y-4 mb-8">
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Everything in Portfolio+, plus:</span>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Custom integrations & API access</span>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Team collaboration tools</span>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Custom data sources</span>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Service level agreements (SLA)</span>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="text-white/70">Compliance & audit support</span>
-                                </li>
-                            </ul>
-
-                            <button className="w-full bg-white text-black font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transform hover:scale-105">
-                                Contact Sales
-                            </button>
                         </div>
                     </div>
                 </div>
