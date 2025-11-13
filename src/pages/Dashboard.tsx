@@ -1,13 +1,15 @@
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
+import { NavigationMenu } from '../components/NavigationMenu'
 
 const Dashboard = () => {
     const { user } = useAuth()
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
+            <NavigationMenu />
+            <div className="max-w-7xl mx-auto p-8">{/* Header */}
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Dashboard</h1>

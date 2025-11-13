@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Layout from '../components/Layout'
+import { NavigationMenu } from '../components/NavigationMenu'
 import { Send, Plus, MessageSquare, TrendingUp, PieChart, DollarSign, BarChart3, History, Trash2 } from 'lucide-react'
 
 interface Message {
@@ -194,6 +195,7 @@ const AIChat = () => {
 
     return (
         <Layout>
+            <NavigationMenu />
             <div className="flex h-full max-h-[calc(100vh-2rem)] relative">
                 {/* Conversation History Sidebar */}
                 <div className={`${showHistory ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-16 z-50 w-80 bg-white border-r border-gray-200 shadow-sm transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:inset-y-auto lg:left-0 lg:z-auto`}>

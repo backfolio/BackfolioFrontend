@@ -112,13 +112,18 @@ const Backtest = () => {
 
     return (
         <Layout>
-            {/* Full-screen container - fills content area without overlapping navbar */}
-            <div className="fixed inset-0 flex flex-col overflow-hidden bg-white transition-all duration-300 ease-in-out" style={{ marginLeft: 'inherit' }}>
+            {/* Full-screen container */}
+            <div className="fixed inset-0 flex flex-col overflow-hidden bg-white">
                 {/* Canvas Area - fills entire space */}
                 <div className="flex-1 bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden relative">
-                    <div className="absolute inset-0 pb-24">
+                    <div className="absolute inset-0">
                         {/* Canvas Mode - Graph-based Strategy Builder */}
-                        <StrategyCanvas hook={tacticalStrategyHook} onEdgesChange={setEdges} />
+                        <StrategyCanvas
+                            hook={tacticalStrategyHook}
+                            onEdgesChange={setEdges}
+                            onRunBacktest={runBacktest}
+                            isBacktestLoading={loading}
+                        />
 
                         {/* Loading/Results Modal */}
                         {showModal && (
@@ -196,19 +201,7 @@ const Backtest = () => {
                             </div>
                         )}
 
-                        {/* Run Button - Fixed Bottom with safe spacing */}
-                        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-40">
-                            <button
-                                onClick={runBacktest}
-                                disabled={loading}
-                                className="group relative px-8 py-3 text-sm font-medium rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                <span>Run Backtest</span>
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>
