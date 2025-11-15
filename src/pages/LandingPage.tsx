@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 const LandingPage = () => {
     const navigate = useNavigate()
+    const [isYearly, setIsYearly] = useState(true)
 
     const handleStartBacktest = () => {
         // Redirect to login with a redirect parameter to backtest page
@@ -89,7 +91,7 @@ const LandingPage = () => {
                 <div className="text-center w-full">
                     <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-sm font-medium text-white/80 mb-12 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
-                        AI-Powered Portfolio Analysis
+                        AI That Actually Uses Your Data
                         <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
@@ -102,9 +104,16 @@ const LandingPage = () => {
                         </span>
                     </h1>
 
-                    <p className="text-xl lg:text-2xl text-white/50 max-w-3xl mx-auto mb-16 leading-relaxed font-normal tracking-wide">
+                    <p className="text-xl lg:text-2xl text-white/50 max-w-3xl mx-auto mb-8 leading-relaxed font-normal tracking-wide">
                         Design dynamic portfolio strategies with conditional rules. <span className="text-white/70">Switch allocations automatically based on market indicators</span>—no coding required.
                     </p>
+
+                    {/* Quote */}
+                    <div className="max-w-2xl mx-auto mb-16">
+                        <p className="text-lg italic text-white/40 font-light">
+                            "History doesn't repeat itself, but it often rhymes"
+                        </p>
+                    </div>
 
                     {/* Stats Bar */}
                     <div className="flex flex-wrap justify-center gap-6 lg:gap-10 mb-16">
@@ -130,15 +139,15 @@ const LandingPage = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
                             </div>
-                            <span className="font-medium text-white/80">AI Insights</span>
+                            <span className="font-medium text-white/80">Grounded AI Analysis</span>
                         </div>
                         <div className="flex items-center gap-3 px-5 py-3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all duration-300 hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                             <div className="flex items-center justify-center w-11 h-11 bg-amber-500/10 rounded-xl border border-amber-500/20">
                                 <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
                             </div>
-                            <span className="font-medium text-white/80">Risk Management</span>
+                            <span className="font-medium text-white/80">Smart Alerts</span>
                         </div>
                     </div>
 
@@ -169,6 +178,82 @@ const LandingPage = () => {
             {/* How It Works Section */}
             <section id="features" className="relative py-32 bg-black">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Why Backfolio Section */}
+                    <div className="text-center mb-32">
+                        <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-sm font-medium text-white/70 mb-8">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Why Backfolio?
+                        </div>
+                        <h2 className="text-5xl lg:text-6xl font-bold text-white mb-12 leading-[1.1] tracking-[-0.02em]">
+                            Portfolio backtesting with
+                            <span className="block bg-gradient-to-r from-primary-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mt-2">
+                                evidence-based AI
+                            </span>
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                            {/* Visual Strategy Building */}
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
+                                <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-emerald-500/30 transition-all duration-500 h-full">
+                                    <div className="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                                        <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-4">Intuitive Visual Interface</h3>
+                                    <p className="text-white/60 leading-relaxed">
+                                        Design sophisticated tactical strategies with leverage using our drag-and-drop canvas. No spreadsheets, no coding—just strategy.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* AI That Doesn't Hallucinate */}
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
+                                <div className="relative bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-xl rounded-2xl p-8 border-2 border-purple-500/40 hover:border-purple-400/60 transition-all duration-500 h-full transform hover:scale-105">
+                                    <div className="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                                        <svg className="w-7 h-7 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                        </svg>
+                                    </div>
+                                    <div className="inline-block px-3 py-1 bg-purple-400/20 border border-purple-400/30 rounded-full text-xs font-bold text-purple-200 mb-4">
+                                        ⭐ Our Superpower
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-4">Evidence-Based AI Recommendations</h3>
+                                    <p className="text-white/70 leading-relaxed font-medium">
+                                        Unlike generic LLMs, our AI <span className="text-purple-300">validates every recommendation through our proprietary backtest engine</span> using historical market data—delivering insights you can trust.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Smart Monitoring */}
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
+                                <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-amber-500/30 transition-all duration-500 h-full">
+                                    <div className="w-14 h-14 bg-amber-500/10 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                                        <svg className="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-4">Automated Monitoring</h3>
+                                    <p className="text-white/60 leading-relaxed">
+                                        Execute with discipline. Receive notifications only when market conditions align with your strategy—no more emotional trading.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Comparison Note */}
+                        <div className="mt-12 max-w-3xl mx-auto">
+                            <p className="text-white/40 text-sm leading-relaxed">
+                                Unlike traditional backtesting platforms, Backfolio integrates <span className="text-white/60 font-medium">visual strategy design</span>, <span className="text-purple-300 font-medium">AI-validated recommendations</span>, and <span className="text-white/60 font-medium">real-time monitoring</span> into a unified workflow.
+                            </p>
+                        </div>
+                    </div>
+
                     <div className="text-center mb-20">
                         <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-sm font-medium text-white/70 mb-8">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,8 +382,8 @@ const LandingPage = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-semibold text-white mb-3">Real-Time Alerts</h3>
-                            <p className="text-sm text-white/50 leading-relaxed">Get instant notifications via SMS or email when it's time to rebalance or switch allocations based on your rules.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Disciplined Execution</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Maintain patience and discipline. Receive targeted notifications only when your strategy triggers—eliminating emotional decision-making.</p>
                         </div>
 
                         <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-white/[0.03] transition-all duration-500">
@@ -307,8 +392,8 @@ const LandingPage = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-semibold text-white mb-3">AI Strategy Enhancement</h3>
-                            <p className="text-sm text-white/50 leading-relaxed">Let AI analyze your strategy and suggest optimizations, parameter adjustments, and alternative approaches.</p>
+                            <h3 className="text-lg font-semibold text-white mb-3">Data-Driven AI Analysis</h3>
+                            <p className="text-sm text-white/50 leading-relaxed">Our AI delivers evidence-based recommendations by running actual backtests with real market data—not hypothetical suggestions or code snippets.</p>
                         </div>
 
                         <div className="group p-8 bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 hover:border-green-500/30 hover:bg-white/[0.03] transition-all duration-500">
@@ -379,7 +464,26 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    {/* Billing Toggle */}
+                    <div className="flex items-center justify-center gap-4 mb-16">
+                        <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-white' : 'text-white/40'}`}>
+                            Monthly
+                        </span>
+                        <button
+                            onClick={() => setIsYearly(!isYearly)}
+                            className="relative w-14 h-7 bg-white/10 rounded-full transition-all duration-300 hover:bg-white/20"
+                        >
+                            <div className={`absolute top-1 left-1 w-5 h-5 bg-gradient-to-r from-primary-500 to-purple-500 rounded-full transition-transform duration-300 ${isYearly ? 'translate-x-7' : 'translate-x-0'}`}></div>
+                        </button>
+                        <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-white' : 'text-white/40'}`}>
+                            Yearly
+                        </span>
+                        <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-xs font-bold text-emerald-300">
+                            Save 30%
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
                         {/* Starter (Free) */}
                         <div className="bg-white/[0.02] backdrop-blur-xl rounded-3xl p-8 border border-white/5 hover:border-white/10 transition-all duration-500">
                             <div className="text-center mb-8">
@@ -404,7 +508,7 @@ const LandingPage = () => {
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span className="text-white/70 text-sm">3 backtests per month</span>
+                                    <span className="text-white/70 text-sm">10 backtests per month</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,10 +523,10 @@ const LandingPage = () => {
                                     <span className="text-white/70 text-sm">1 saved strategy</span>
                                 </li>
                                 <li className="flex items-start gap-3">
-                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                    <span className="text-white/70 text-sm">AI chat for basic questions</span>
+                                    <span className="text-white/40 text-sm line-through">AI assistant & researcher</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,6 +547,78 @@ const LandingPage = () => {
                             </button>
                         </div>
 
+                        {/* Basic */}
+                        <div className="bg-white/[0.02] backdrop-blur-xl rounded-3xl p-8 border border-emerald-500/30 hover:border-emerald-400/50 hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-500">
+                            <div className="text-center mb-8">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-green-500/20 backdrop-blur-sm border border-emerald-500/30 rounded-full text-sm font-medium text-emerald-300 mb-6">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
+                                    Basic
+                                </div>
+                                <div className="text-5xl font-bold text-white mb-3">
+                                    ${isYearly ? '5' : '8'}
+                                    <span className="text-xl font-semibold text-white/60">/mo</span>
+                                </div>
+                                <p className="text-base text-white/50">Test strategies seriously</p>
+                            </div>
+
+                            <ul className="space-y-3 mb-8">
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/70 text-sm">Up to 5 portfolios per strategy</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/70 text-sm">Unlimited backtests</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/70 text-sm">All technical indicators</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/70 text-sm">1 PDF report/week with AI commentary</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/70 text-sm">Up to 10 saved strategies</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <span className="text-white/40 text-sm line-through">AI assistant & researcher</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <span className="text-white/40 text-sm line-through">Real-time alerts</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-white/30 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <span className="text-white/40 text-sm line-through">Monte Carlo simulations</span>
+                                </li>
+                            </ul>
+
+                            <button className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/40 transform hover:scale-105">
+                                Start Basic
+                            </button>
+                        </div>
+
                         {/* Pro (Recommended) */}
                         <div className="bg-white/[0.02] backdrop-blur-sm rounded-3xl p-8 border-2 border-primary-500/50 relative hover:border-primary-400 hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 transform hover:-translate-y-2 scale-105">
                             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -459,7 +635,7 @@ const LandingPage = () => {
                                     Pro
                                 </div>
                                 <div className="text-5xl font-bold text-white mb-3">
-                                    $29
+                                    ${isYearly ? '20' : '29'}
                                     <span className="text-xl font-semibold text-white/60">/mo</span>
                                 </div>
                                 <p className="text-base text-white/70 font-medium">For serious strategy builders</p>
@@ -495,6 +671,12 @@ const LandingPage = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
                                     <span className="text-white/80 text-sm font-medium">Monte Carlo simulations</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-white/80 text-sm font-medium">AI assistant & researcher</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -537,7 +719,7 @@ const LandingPage = () => {
                                     Team
                                 </div>
                                 <div className="text-5xl font-bold text-white mb-3">
-                                    $99
+                                    ${isYearly ? '69' : '99'}
                                     <span className="text-xl font-semibold text-white/60">/mo</span>
                                 </div>
                                 <p className="text-base text-white/70 font-medium">For collaborative investing</p>

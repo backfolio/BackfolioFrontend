@@ -3,6 +3,7 @@ import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tool
 import { BacktestAPIResult } from '../types/backtestResults'
 import { STRATEGY_COLORS } from '../constants/chartColors'
 import { StrategyLegend } from './StrategyLegend'
+import { useTheme } from '../../../context/ThemeContext'
 
 interface DrawdownChartProps {
     data: any[]
@@ -17,17 +18,22 @@ export const DrawdownChart: React.FC<DrawdownChartProps> = ({
     visibleStrategies,
     onToggleStrategy
 }) => {
+    const { theme } = useTheme()
+    const isDark = theme === 'dark'
+
     return (
-        <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <div className={`backdrop-blur-xl border rounded-2xl p-6 shadow-sm ${isDark ? 'bg-white/[0.02] border-white/[0.15]' : 'bg-white border-gray-200'
+            }`}>
             <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center w-11 h-11 bg-red-50 border border-red-200 rounded-xl">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`flex items-center justify-center w-11 h-11 border rounded-xl ${isDark ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+                    }`}>
+                    <svg className={`w-6 h-6 ${isDark ? 'text-red-400' : 'text-red-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                     </svg>
                 </div>
                 <div>
-                    <h3 className="text-lg font-bold text-gray-900">Drawdown Analysis</h3>
-                    <p className="text-xs text-gray-600">Underwater equity curve</p>
+                    <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Drawdown Analysis</h3>
+                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Underwater equity curve</p>
                 </div>
             </div>
             <div className="h-[350px] w-full">
@@ -49,11 +55,11 @@ export const DrawdownChart: React.FC<DrawdownChartProps> = ({
                                 </linearGradient>
                             )}
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.3} vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'} opacity={0.3} vertical={false} />
                         <XAxis
                             dataKey="date"
-                            stroke="#94a3b8"
-                            style={{ fontSize: '11px', fontWeight: 500, fill: '#64748b' }}
+                            stroke={isDark ? 'rgba(255,255,255,0.3)' : '#94a3b8'}
+                            style={{ fontSize: '11px', fontWeight: 500, fill: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }}
                             tickFormatter={(value) => {
                                 const date = new Date(value)
                                 return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
@@ -61,14 +67,14 @@ export const DrawdownChart: React.FC<DrawdownChartProps> = ({
                             interval="preserveStartEnd"
                             minTickGap={80}
                             tickLine={false}
-                            axisLine={{ stroke: '#e2e8f0' }}
+                            axisLine={{ stroke: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }}
                         />
                         <YAxis
-                            stroke="#94a3b8"
-                            style={{ fontSize: '11px', fontWeight: 500, fill: '#64748b' }}
+                            stroke={isDark ? 'rgba(255,255,255,0.3)' : '#94a3b8'}
+                            style={{ fontSize: '11px', fontWeight: 500, fill: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }}
                             tickFormatter={(value) => `${value.toFixed(0)}%`}
                             tickLine={false}
-                            axisLine={{ stroke: '#e2e8f0' }}
+                            axisLine={{ stroke: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }}
                             width={50}
                         />
                         <Tooltip

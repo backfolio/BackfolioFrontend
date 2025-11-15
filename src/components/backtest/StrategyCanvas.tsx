@@ -23,6 +23,7 @@ import { JsonEditorModal } from './modals/JsonEditorModal';
 import { useTacticalStrategy } from '../../hooks/useTacticalStrategy';
 import { Allocation } from '../../types/strategy';
 import { NavigationMenu } from '../NavigationMenu';
+import { useTheme } from '../../context/ThemeContext';
 
 /**
  * StrategyCanvas - Visual node-based editor for portfolio strategies
@@ -57,6 +58,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
     onRunBacktest,
     isBacktestLoading = false
 }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     // Position tracking: persists node positions across re-renders to prevent layout resets
     // - Stores positions when nodes are dragged or duplicated
     // - Prioritizes: stored position > existing position > default grid layout
@@ -543,17 +547,20 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
     const isEmpty = Object.keys(hook.strategy.allocations).length === 0;
 
     return (
-        <div className="h-screen w-full bg-slate-50 relative">
+        <div className={`h-screen w-full relative ${isDark ? 'dark bg-[#121212]' : 'bg-slate-50'}`}>
             {/* Navigation Menu */}
             <NavigationMenu />
 
             {/* Placeholder Panel Button - Top Right */}
             <button
                 onClick={() => setShowPlaceholderPanel(!showPlaceholderPanel)}
-                className="fixed top-6 right-6 z-50 p-3 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl border border-slate-200/50 hover:bg-white transition-all hover:scale-105"
+                className={`fixed top-6 right-6 z-50 p-3 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl border transition-all hover:scale-105 ${isDark
+                        ? 'bg-black/80 border-white/[0.15] hover:bg-black/90 hover:shadow-purple-500/20'
+                        : 'bg-white/95 border-slate-200/50 hover:bg-white'
+                    }`}
                 title="Panel"
             >
-                <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-5 h-5 ${isDark ? 'text-white' : 'text-slate-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
@@ -563,18 +570,26 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                 <>
                     {/* Backdrop */}
                     <div
-                        className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm"
+                        className={`fixed inset-0 z-40 backdrop-blur-sm ${isDark ? 'bg-black/40' : 'bg-black/20'
+                            }`}
                         onClick={() => setShowPlaceholderPanel(false)}
                     />
                     {/* Panel */}
-                    <div className="fixed right-6 top-6 bottom-6 w-80 bg-white rounded-2xl shadow-2xl z-50 overflow-y-auto border border-slate-200/50">
+                    <div className={`fixed right-6 top-6 bottom-6 w-80 rounded-2xl shadow-2xl z-50 overflow-y-auto border ${isDark
+                            ? 'bg-black/95 backdrop-blur-xl border-white/[0.15]'
+                            : 'bg-white border-slate-200/50'
+                        }`}>
                         <div className="p-6">
                             {/* Header */}
-                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
-                                <h2 className="text-xl font-bold text-slate-900">Panel</h2>
+                            <div className={`flex items-center justify-between mb-6 pb-4 border-b ${isDark ? 'border-white/[0.1]' : 'border-slate-200'
+                                }`}>
+                                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Panel</h2>
                                 <button
                                     onClick={() => setShowPlaceholderPanel(false)}
-                                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                                    className={`p-1.5 rounded-lg transition-all ${isDark
+                                            ? 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
+                                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                                        }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -583,9 +598,11 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                             </div>
 
                             {/* Placeholder Content */}
-                            <div className="flex items-center justify-center h-64 text-slate-400">
+                            <div className={`flex items-center justify-center h-64 ${isDark ? 'text-gray-400' : 'text-slate-400'
+                                }`}>
                                 <div className="text-center">
-                                    <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-500' : 'text-slate-300'
+                                        }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                     </svg>
                                     <p className="text-sm font-medium">Content Coming Soon</p>
@@ -618,7 +635,7 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                 proOptions={{ hideAttribution: true }}
             >
                 <Background
-                    color="#cbd5e1"
+                    color={isDark ? "#2a2a2a" : "#cbd5e1"}
                     gap={20}
                     size={1.5}
                     variant={BackgroundVariant.Dots}
@@ -684,20 +701,25 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
 
                 {/* Top Center Toolbar - Icon Only (Excalidraw Style) */}
                 <Panel position="top-center" className="mt-4">
-                    <div className="flex items-center gap-2 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl border border-slate-200/50 px-3 py-2">
+                    <div className={`flex items-center gap-2 backdrop-blur-lg rounded-xl shadow-2xl px-3 py-2 ${isDark ? 'bg-white/[0.02] border border-white/[0.15]' : 'bg-white/95 border border-slate-200/50'
+                        }`}>
                         {/* Add Portfolio */}
                         <div className="relative group">
                             <button
                                 onClick={handleQuickCreatePortfolio}
                                 disabled={Object.keys(hook.strategy.allocations).length >= 6}
-                                className="p-2.5 rounded-lg bg-white hover:bg-purple-50 text-purple-600 hover:text-purple-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white border-2 border-transparent hover:border-purple-200"
+                                className={`p-2.5 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed border-2 ${isDark
+                                    ? 'bg-white/[0.05] hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 border-transparent hover:border-purple-500/30 disabled:hover:bg-white/[0.05]'
+                                    : 'bg-white hover:bg-purple-50 text-purple-600 hover:text-purple-700 border-transparent hover:border-purple-200 disabled:hover:bg-white'
+                                    }`}
                                 title="Add Portfolio"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                             </button>
-                            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                            <div className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg ${isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
+                                }`}>
                                 {Object.keys(hook.strategy.allocations).length >= 6 ? 'Max 6 portfolios' : 'Add Portfolio'}
                             </div>
                         </div>
@@ -705,74 +727,93 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                         {/* Add Rule */}
                         <button
                             onClick={() => setShowRuleModal(true)}
-                            className="p-2.5 rounded-lg bg-white hover:bg-blue-50 text-blue-600 hover:text-blue-700 transition-all border-2 border-transparent hover:border-blue-200 group relative"
+                            className={`p-2.5 rounded-lg transition-all border-2 group relative ${isDark
+                                ? 'bg-white/[0.05] hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 border-transparent hover:border-blue-500/30'
+                                : 'bg-white hover:bg-blue-50 text-blue-600 hover:text-blue-700 border-transparent hover:border-blue-200'
+                                }`}
                             title="Create Rule"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                            <div className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg ${isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
+                                }`}>
                                 Create Rule
                             </div>
                         </button>
 
                         {/* Divider */}
-                        <div className="h-6 w-px bg-slate-300" />
+                        <div className={`h-6 w-px ${isDark ? 'bg-white/[0.1]' : 'bg-slate-300'}`} />
 
                         {/* View Rules */}
                         <button
                             onClick={() => setShowRulesPanel(!showRulesPanel)}
                             className={`p-2.5 rounded-lg transition-all border-2 group relative ${showRulesPanel
-                                ? 'bg-indigo-50 text-indigo-700 border-indigo-300'
-                                : 'bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 border-transparent hover:border-indigo-200'
+                                ? isDark
+                                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30'
+                                    : 'bg-indigo-50 text-indigo-700 border-indigo-300'
+                                : isDark
+                                    ? 'bg-white/[0.05] text-slate-300 hover:bg-indigo-500/20 hover:text-indigo-300 border-transparent hover:border-indigo-400/30'
+                                    : 'bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 border-transparent hover:border-indigo-200'
                                 }`}
                             title="View Rules"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                            <div className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg ${isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
+                                }`}>
                                 {showRulesPanel ? 'Hide Rules' : 'View Rules'}
                             </div>
                         </button>
 
                         {/* Divider */}
-                        <div className="h-6 w-px bg-slate-300" />
+                        <div className={`h-6 w-px ${isDark ? 'bg-white/[0.1]' : 'bg-slate-300'}`} />
 
                         {/* Strategy Settings Dropdown */}
-                        <div className="relative flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className={`relative flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isDark ? 'bg-white/[0.03] border-white/[0.1]' : 'bg-slate-50 border-slate-200'
+                            }`}>
                             {/* Start Date */}
                             <div className="flex flex-col">
-                                <label className="text-[10px] text-slate-500 font-medium mb-0.5">Start</label>
+                                <label className={`text-[10px] font-medium mb-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Start</label>
                                 <input
                                     type="date"
                                     value={hook.strategy.start_date}
                                     onChange={(e) => hook.updateStrategy({ ...hook.strategy, start_date: e.target.value })}
-                                    className="text-xs border border-slate-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-500 w-32"
+                                    className={`text-xs border rounded px-2 py-1 focus:outline-none focus:ring-1 w-32 ${isDark
+                                        ? 'bg-white/[0.05] border-white/[0.1] text-white focus:ring-purple-500 focus:border-purple-500'
+                                        : 'border-slate-300 focus:ring-purple-500'
+                                        }`}
                                 />
                             </div>
 
                             {/* End Date */}
                             <div className="flex flex-col">
-                                <label className="text-[10px] text-slate-500 font-medium mb-0.5">End</label>
+                                <label className={`text-[10px] font-medium mb-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>End</label>
                                 <input
                                     type="date"
                                     value={hook.strategy.end_date}
                                     onChange={(e) => hook.updateStrategy({ ...hook.strategy, end_date: e.target.value })}
-                                    className="text-xs border border-slate-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-500 w-32"
+                                    className={`text-xs border rounded px-2 py-1 focus:outline-none focus:ring-1 w-32 ${isDark
+                                        ? 'bg-white/[0.05] border-white/[0.1] text-white focus:ring-purple-500 focus:border-purple-500'
+                                        : 'border-slate-300 focus:ring-purple-500'
+                                        }`}
                                 />
                             </div>
 
                             {/* Initial Capital */}
                             <div className="flex flex-col">
-                                <label className="text-[10px] text-slate-500 font-medium mb-0.5">Capital</label>
+                                <label className={`text-[10px] font-medium mb-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Capital</label>
                                 <div className="relative">
-                                    <span className="absolute left-2 top-1 text-xs text-slate-500">$</span>
+                                    <span className={`absolute left-2 top-1 text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>$</span>
                                     <input
                                         type="number"
                                         value={hook.strategy.initial_capital}
                                         onChange={(e) => hook.updateStrategy({ ...hook.strategy, initial_capital: parseFloat(e.target.value) || 100000 })}
-                                        className="text-xs border border-slate-300 rounded pl-5 pr-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-500 w-28"
+                                        className={`text-xs border rounded pl-5 pr-2 py-1 focus:outline-none focus:ring-1 w-28 ${isDark
+                                            ? 'bg-white/[0.05] border-white/[0.1] text-white focus:ring-purple-500 focus:border-purple-500'
+                                            : 'border-slate-300 focus:ring-purple-500'
+                                            }`}
                                         min="1000"
                                         step="1000"
                                     />
@@ -781,38 +822,46 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                         </div>
 
                         {/* Divider */}
-                        <div className="h-6 w-px bg-slate-300" />
+                        <div className={`h-6 w-px ${isDark ? 'bg-white/[0.1]' : 'bg-slate-300'}`} />
 
                         {/* JSON Editor */}
                         <button
                             onClick={() => setShowJsonEditor(true)}
-                            className="p-2.5 rounded-lg bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-700 transition-all border-2 border-transparent hover:border-slate-200 group relative"
+                            className={`p-2.5 rounded-lg transition-all border-2 group relative ${isDark
+                                ? 'bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-slate-200 border-transparent hover:border-white/[0.2]'
+                                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-700 border-transparent hover:border-slate-200'
+                                }`}
                             title="Edit JSON"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                             </svg>
-                            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                            <div className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg ${isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
+                                }`}>
                                 Edit JSON
                             </div>
                         </button>
 
                         {/* Divider */}
-                        <div className="h-6 w-px bg-slate-300" />
+                        <div className={`h-6 w-px ${isDark ? 'bg-white/[0.1]' : 'bg-slate-300'}`} />
 
                         {/* Run Backtest Button - Primary CTA */}
                         {onRunBacktest && (
                             <button
                                 onClick={onRunBacktest}
                                 disabled={isBacktestLoading}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium group relative"
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium group relative ${isDark
+                                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]'
+                                    : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700'
+                                    }`}
                                 title="Run Backtest"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z" />
                                 </svg>
                                 <span className="text-sm">Run</span>
-                                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                                <div className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg ${isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
+                                    }`}>
                                     Run Backtest
                                 </div>
                             </button>
@@ -980,10 +1029,13 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
             {/* Documentation Button - Bottom Right */}
             <button
                 onClick={() => setShowDocumentation(true)}
-                className="fixed bottom-6 right-6 z-50 p-3 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl border border-slate-200/50 hover:bg-white transition-all hover:scale-105"
+                className={`fixed bottom-6 right-6 z-50 p-3 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl border transition-all hover:scale-105 ${isDark
+                        ? 'bg-black/80 border-white/[0.15] hover:bg-black/90 hover:shadow-purple-500/20'
+                        : 'bg-white/95 border-slate-200/50 hover:bg-white'
+                    }`}
                 title="Documentation"
             >
-                <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-5 h-5 ${isDark ? 'text-white' : 'text-slate-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </button>
@@ -993,19 +1045,29 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                 <>
                     {/* Backdrop */}
                     <div
-                        className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm"
+                        className={`fixed inset-0 z-50 backdrop-blur-sm ${isDark ? 'bg-black/60' : 'bg-black/40'
+                            }`}
                         onClick={() => setShowDocumentation(false)}
                     />
                     {/* Modal */}
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-8">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto border border-slate-200">
+                        <div className={`rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto border ${isDark
+                                ? 'bg-black/95 backdrop-blur-xl border-white/[0.15]'
+                                : 'bg-white border-slate-200'
+                            }`}>
                             <div className="p-8">
                                 {/* Header */}
-                                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
-                                    <h2 className="text-2xl font-bold text-slate-900">How Backfolio Works</h2>
+                                <div className={`flex items-center justify-between mb-6 pb-4 border-b ${isDark ? 'border-white/[0.1]' : 'border-slate-200'
+                                    }`}>
+                                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                        How Backfolio Works
+                                    </h2>
                                     <button
                                         onClick={() => setShowDocumentation(false)}
-                                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                                        className={`p-2 rounded-lg transition-all ${isDark
+                                                ? 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
+                                                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                                            }`}
                                     >
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1014,10 +1076,12 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                                 </div>
 
                                 {/* Content */}
-                                <div className="space-y-6 text-slate-700">
+                                <div className={`space-y-6 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
                                     {/* Overview */}
                                     <section>
-                                        <h3 className="text-lg font-semibold text-slate-900 mb-3">Visual Strategy Builder</h3>
+                                        <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                            Visual Strategy Builder
+                                        </h3>
                                         <p className="text-sm leading-relaxed">
                                             Backfolio uses a node-based canvas to create tactical portfolio strategies. Build strategies by connecting portfolios with switching rules—when rules are met, the strategy switches to the connected portfolio.
                                         </p>
@@ -1025,7 +1089,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
 
                                     {/* Portfolios */}
                                     <section>
-                                        <h3 className="text-lg font-semibold text-slate-900 mb-3">📦 Portfolios (Nodes)</h3>
+                                        <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                            📦 Portfolios (Nodes)
+                                        </h3>
                                         <p className="text-sm leading-relaxed mb-2">
                                             Each node represents a portfolio allocation—a mix of tickers with percentage weights.
                                         </p>
@@ -1039,7 +1105,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
 
                                     {/* Rules */}
                                     <section>
-                                        <h3 className="text-lg font-semibold text-slate-900 mb-3">⚡ Switching Rules</h3>
+                                        <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                            ⚡ Switching Rules
+                                        </h3>
                                         <p className="text-sm leading-relaxed mb-2">
                                             Rules define when to switch portfolios based on market indicators.
                                         </p>
@@ -1053,7 +1121,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
 
                                     {/* Connections */}
                                     <section>
-                                        <h3 className="text-lg font-semibold text-slate-900 mb-3">🔗 Linked-List System</h3>
+                                        <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                            🔗 Linked-List System
+                                        </h3>
                                         <p className="text-sm leading-relaxed mb-2">
                                             Connect portfolios by dragging from one node's handle to another. Each connection can have one rule assigned.
                                         </p>
@@ -1067,7 +1137,9 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
 
                                     {/* Backtest */}
                                     <section>
-                                        <h3 className="text-lg font-semibold text-slate-900 mb-3">📊 Running Backtests</h3>
+                                        <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                            📊 Running Backtests
+                                        </h3>
                                         <p className="text-sm leading-relaxed mb-2">
                                             Test your strategy against historical data to see how it would have performed.
                                         </p>
@@ -1079,8 +1151,13 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
                                     </section>
 
                                     {/* Tips */}
-                                    <section className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                                        <h3 className="text-lg font-semibold text-slate-900 mb-2">💡 Pro Tips</h3>
+                                    <section className={`rounded-lg p-4 border ${isDark
+                                            ? 'bg-white/[0.02] border-white/[0.1]'
+                                            : 'bg-slate-50 border-slate-200'
+                                        }`}>
+                                        <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                            💡 Pro Tips
+                                        </h3>
                                         <ul className="text-sm space-y-1 ml-4 list-disc list-inside">
                                             <li>Start simple: 2-3 portfolios with one rule</li>
                                             <li>Use the JSON editor (toolbar) for advanced editing</li>

@@ -4,6 +4,7 @@ import { BacktestAPIResult } from '../types/backtestResults'
 import { STRATEGY_COLORS } from '../constants/chartColors'
 import { formatCurrency } from '../utils/backtestFormatters'
 import { StrategyLegend } from './StrategyLegend'
+import { useTheme } from '../../../context/ThemeContext'
 
 interface PortfolioChartProps {
     data: any[]
@@ -18,18 +19,23 @@ export const PortfolioChart: React.FC<PortfolioChartProps> = ({
     visibleStrategies,
     onToggleStrategy
 }) => {
+    const { theme } = useTheme()
+    const isDark = theme === 'dark'
+
     return (
-        <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <div className={`backdrop-blur-xl border rounded-2xl p-6 shadow-sm ${isDark ? 'bg-white/[0.02] border-white/[0.15]' : 'bg-white border-gray-200'
+            }`}>
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-11 h-11 bg-purple-50 border border-purple-200 rounded-xl">
-                        <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className={`flex items-center justify-center w-11 h-11 border rounded-xl ${isDark ? 'bg-purple-500/10 border-purple-500/30' : 'bg-purple-50 border-purple-200'
+                        }`}>
+                        <svg className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                         </svg>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-900">Portfolio Value Over Time</h3>
-                        <p className="text-xs text-gray-600">Historical performance</p>
+                        <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Portfolio Value Over Time</h3>
+                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Historical performance</p>
                     </div>
                 </div>
             </div>
@@ -44,11 +50,11 @@ export const PortfolioChart: React.FC<PortfolioChartProps> = ({
                                 </linearGradient>
                             ))}
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.3} vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'} opacity={0.3} vertical={false} />
                         <XAxis
                             dataKey="date"
-                            stroke="#94a3b8"
-                            style={{ fontSize: '11px', fontWeight: 500, fill: '#64748b' }}
+                            stroke={isDark ? 'rgba(255,255,255,0.3)' : '#94a3b8'}
+                            style={{ fontSize: '11px', fontWeight: 500, fill: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }}
                             tickFormatter={(value) => {
                                 const date = new Date(value)
                                 return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
@@ -56,14 +62,14 @@ export const PortfolioChart: React.FC<PortfolioChartProps> = ({
                             interval="preserveStartEnd"
                             minTickGap={80}
                             tickLine={false}
-                            axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                            axisLine={{ stroke: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }}
                         />
                         <YAxis
-                            stroke="rgba(255,255,255,0.3)"
-                            style={{ fontSize: '11px', fontWeight: 500, fill: 'rgba(255,255,255,0.5)' }}
+                            stroke={isDark ? 'rgba(255,255,255,0.3)' : '#94a3b8'}
+                            style={{ fontSize: '11px', fontWeight: 500, fill: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }}
                             tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                             tickLine={false}
-                            axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                            axisLine={{ stroke: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }}
                             width={60}
                         />
                         <Tooltip

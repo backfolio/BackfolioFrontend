@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { StrategyDSL } from '../../../types/strategy';
+import { useTheme } from '../../../context/ThemeContext';
 
 interface JsonEditorModalProps {
     isOpen: boolean;
@@ -31,6 +32,8 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [selectedChainIndex, setSelectedChainIndex] = useState(0);
     const [viewMode, setViewMode] = useState<'individual' | 'all'>('individual');
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     // Build individual strategy objects for each chain
     const buildIndividualStrategies = (): DisplayStrategy[] => {
@@ -286,26 +289,30 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className={`rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col ${isDark ? 'bg-black border border-white/[0.15]' : 'bg-white'
+                }`}>
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                <div className={`px-6 py-4 flex items-center justify-between ${isDark ? 'border-b border-white/[0.15]' : 'border-b border-slate-200'
+                    }`}>
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl shadow-sm">
-                            <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className={`flex items-center justify-center w-10 h-10 rounded-xl shadow-sm ${isDark ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20' : 'bg-gradient-to-br from-amber-100 to-orange-100'
+                            }`}>
+                            <svg className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                             </svg>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-slate-900">JSON Strategy Editor</h2>
-                            <p className="text-sm text-slate-600">Edit strategy directly in JSON format</p>
+                            <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>JSON Strategy Editor</h2>
+                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>Edit strategy directly in JSON format</p>
                         </div>
                     </div>
                     <button
                         onClick={handleClose}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/[0.05]' : 'hover:bg-slate-100'
+                            }`}
                     >
-                        <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -316,12 +323,17 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                     {/* View Mode Selector - only show if multiple strategies */}
                     {strategyChains.length > 0 && (
                         <div className="mb-4 flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+                            <div className={`flex items-center gap-2 rounded-lg p-1 ${isDark ? 'bg-white/[0.05]' : 'bg-slate-100'
+                                }`}>
                                 <button
                                     onClick={() => setViewMode('individual')}
                                     className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'individual'
-                                        ? 'bg-white text-slate-900 shadow-sm'
-                                        : 'text-slate-600 hover:text-slate-900'
+                                        ? isDark
+                                            ? 'bg-purple-500/20 text-purple-300 shadow-sm border border-purple-500/30'
+                                            : 'bg-white text-slate-900 shadow-sm'
+                                        : isDark
+                                            ? 'text-gray-400 hover:text-gray-200'
+                                            : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                 >
                                     Individual Strategy
@@ -329,8 +341,12 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                                 <button
                                     onClick={() => setViewMode('all')}
                                     className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'all'
-                                        ? 'bg-white text-slate-900 shadow-sm'
-                                        : 'text-slate-600 hover:text-slate-900'
+                                        ? isDark
+                                            ? 'bg-purple-500/20 text-purple-300 shadow-sm border border-purple-500/30'
+                                            : 'bg-white text-slate-900 shadow-sm'
+                                        : isDark
+                                            ? 'text-gray-400 hover:text-gray-200'
+                                            : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                 >
                                     All Strategies ({strategyChains.length})
@@ -342,7 +358,10 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                                 <select
                                     value={selectedChainIndex}
                                     onChange={(e) => setSelectedChainIndex(parseInt(e.target.value))}
-                                    className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none"
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium focus:ring-2 focus:outline-none ${isDark
+                                            ? 'bg-white/[0.05] border border-white/[0.15] text-white focus:ring-purple-500 focus:border-purple-500'
+                                            : 'bg-white border border-slate-300 text-slate-700 focus:ring-amber-500 focus:border-amber-500'
+                                        }`}
                                 >
                                     {buildIndividualStrategies().map((s, idx) => (
                                         <option key={idx} value={idx}>
@@ -355,27 +374,32 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                     )}
 
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div className={`mb-4 p-3 rounded-lg ${isDark ? 'bg-red-500/10 border border-red-500/30' : 'bg-red-50 border border-red-200'
+                            }`}>
                             <div className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? 'text-red-400' : 'text-red-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <div>
-                                    <p className="text-sm font-medium text-red-800">JSON Error</p>
-                                    <p className="text-xs text-red-600 mt-1">{error}</p>
+                                    <p className={`text-sm font-medium ${isDark ? 'text-red-300' : 'text-red-800'}`}>JSON Error</p>
+                                    <p className={`text-xs mt-1 ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-1">
+                    <div className={`rounded-xl p-1 ${isDark ? 'bg-white/[0.02] border border-white/[0.1]' : 'bg-slate-50 border border-slate-200'
+                        }`}>
                         <textarea
                             value={jsonText}
                             onChange={(e) => {
                                 setJsonText(e.target.value);
                                 setError(null);
                             }}
-                            className="w-full h-[500px] font-mono text-sm bg-white border-0 rounded-lg p-4 focus:ring-2 focus:ring-amber-500 focus:outline-none resize-none"
+                            className={`w-full h-[500px] font-mono text-sm border-0 rounded-lg p-4 focus:ring-2 focus:outline-none resize-none ${isDark
+                                    ? 'bg-black/50 text-gray-100 placeholder-gray-500 focus:ring-purple-500'
+                                    : 'bg-white text-slate-900 focus:ring-amber-500'
+                                }`}
                             placeholder="Enter your strategy JSON here..."
                             spellCheck={false}
                         />
@@ -383,10 +407,14 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3">
+                <div className={`px-6 py-4 flex items-center justify-between gap-3 ${isDark ? 'border-t border-white/[0.15]' : 'border-t border-slate-200'
+                    }`}>
                     <button
                         onClick={handleFormat}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors text-sm font-medium"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${isDark
+                                ? 'bg-white/[0.05] hover:bg-white/[0.1] text-gray-300'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            }`}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -396,13 +424,19 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                     <div className="flex gap-2">
                         <button
                             onClick={handleClose}
-                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors text-sm font-medium"
+                            className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${isDark
+                                    ? 'bg-white/[0.05] hover:bg-white/[0.1] text-gray-300'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                }`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg transition-all text-sm font-semibold shadow-sm hover:shadow-md"
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-semibold shadow-sm hover:shadow-md ${isDark
+                                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]'
+                                    : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
+                                }`}
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

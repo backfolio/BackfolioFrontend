@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SwitchingRule, Condition } from '../../../types/strategy';
+import { useTheme } from '../../../context/ThemeContext';
 
 interface RuleCreationModalProps {
     isOpen: boolean;
@@ -141,6 +142,8 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
 }) => {
     const [mode, setMode] = useState<'template' | 'custom'>('template');
     const [ruleName, setRuleName] = useState('');
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     // Condition state
     const [leftType, setLeftType] = useState('SMA');
@@ -269,29 +272,36 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className={`rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${isDark ? 'bg-black border border-white/[0.15]' : 'bg-white'
+                }`}>
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
-                    <h2 className="text-xl font-bold text-slate-900">Create Switching Rule</h2>
+                <div className={`px-6 py-4 flex items-center justify-between sticky top-0 z-10 ${isDark ? 'bg-black border-b border-white/[0.15]' : 'bg-white border-b border-slate-200'
+                    }`}>
+                    <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Create Switching Rule</h2>
                     <button
                         onClick={handleClose}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/[0.05]' : 'hover:bg-slate-100'
+                            }`}
                     >
-                        <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
                 {/* Mode Toggle */}
-                <div className="px-6 py-4 border-b border-slate-200">
-                    <div className="flex gap-2 bg-slate-100 rounded-lg p-1">
+                <div className={`px-6 py-4 ${isDark ? 'border-b border-white/[0.15]' : 'border-b border-slate-200'}`}>
+                    <div className={`flex gap-2 rounded-lg p-1 ${isDark ? 'bg-white/[0.05]' : 'bg-slate-100'}`}>
                         <button
                             onClick={() => setMode('template')}
                             className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all ${mode === 'template'
-                                ? 'bg-white text-purple-700 shadow-sm'
-                                : 'text-slate-600 hover:text-slate-900'
+                                ? isDark
+                                    ? 'bg-purple-500/20 text-purple-300 shadow-sm border border-purple-500/30'
+                                    : 'bg-white text-purple-700 shadow-sm'
+                                : isDark
+                                    ? 'text-gray-400 hover:text-gray-200'
+                                    : 'text-slate-600 hover:text-slate-900'
                                 }`}
                         >
                             Choose Template
@@ -299,8 +309,12 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                         <button
                             onClick={() => setMode('custom')}
                             className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all ${mode === 'custom'
-                                ? 'bg-white text-purple-700 shadow-sm'
-                                : 'text-slate-600 hover:text-slate-900'
+                                ? isDark
+                                    ? 'bg-purple-500/20 text-purple-300 shadow-sm border border-purple-500/30'
+                                    : 'bg-white text-purple-700 shadow-sm'
+                                : isDark
+                                    ? 'text-gray-400 hover:text-gray-200'
+                                    : 'text-slate-600 hover:text-slate-900'
                                 }`}
                         >
                             Create Custom
@@ -312,21 +326,25 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                 <div className="px-6 py-4">
                     {mode === 'template' ? (
                         <div className="space-y-3">
-                            <p className="text-sm text-slate-600 mb-4">
+                            <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                                 Select a pre-configured rule template
                             </p>
                             {Object.entries(RULE_TEMPLATES).map(([key, template]) => (
                                 <button
                                     key={key}
                                     onClick={() => handleTemplateSelect(key as keyof typeof RULE_TEMPLATES)}
-                                    className="w-full p-4 border-2 border-slate-200 hover:border-purple-500 hover:bg-purple-50 rounded-xl transition-all text-left group"
+                                    className={`w-full p-4 border-2 rounded-xl transition-all text-left group ${isDark
+                                            ? 'border-white/[0.15] hover:border-purple-500/50 hover:bg-purple-500/10'
+                                            : 'border-slate-200 hover:border-purple-500 hover:bg-purple-50'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
-                                            <h3 className="font-bold text-slate-900 group-hover:text-purple-700">
+                                            <h3 className={`font-bold ${isDark ? 'text-white group-hover:text-purple-300' : 'text-slate-900 group-hover:text-purple-700'
+                                                }`}>
                                                 {template.name}
                                             </h3>
-                                            <p className="text-sm text-slate-600 mt-1">
+                                            <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                                                 {template.condition.left.type} {template.condition.comparison}{' '}
                                                 {template.condition.right.type === 'constant'
                                                     ? (template.condition.right as any).value
@@ -334,7 +352,7 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                             </p>
                                         </div>
                                         <svg
-                                            className="w-5 h-5 text-slate-400 group-hover:text-purple-600"
+                                            className={`w-5 h-5 ${isDark ? 'text-gray-500 group-hover:text-purple-400' : 'text-slate-400 group-hover:text-purple-600'}`}
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -347,38 +365,45 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            <p className="text-sm text-slate-600">
+                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                                 Build a custom switching condition
                             </p>
 
                             {/* Rule Name */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Rule Name <span className="text-slate-500 text-xs font-normal">(optional)</span>
+                                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
+                                    Rule Name <span className={`text-xs font-normal ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>(optional)</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={ruleName}
                                     onChange={(e) => setRuleName(e.target.value)}
                                     placeholder="Auto-generated from condition if left blank"
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${isDark
+                                            ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                            : 'border-slate-300 focus:ring-purple-500 focus:border-transparent'
+                                        }`}
                                 />
                             </div>
 
                             {/* Condition Builder */}
-                            <div className="border-t border-slate-200 pt-4">
-                                <h4 className="text-sm font-semibold text-slate-700 mb-3">Condition Builder</h4>
+                            <div className={`border-t pt-4 ${isDark ? 'border-white/[0.15]' : 'border-slate-200'}`}>
+                                <h4 className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>Condition Builder</h4>
 
                                 {/* Left Side */}
-                                <div className="bg-slate-50 p-3 rounded-lg mb-3 border border-slate-200">
-                                    <label className="block text-xs font-medium text-slate-600 mb-2">
+                                <div className={`p-3 rounded-lg mb-3 border ${isDark ? 'bg-white/[0.02] border-white/[0.1]' : 'bg-slate-50 border-slate-200'
+                                    }`}>
+                                    <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                                         LEFT SIDE
                                     </label>
                                     <div className="grid grid-cols-3 gap-2">
                                         <select
                                             value={leftType}
                                             onChange={(e) => handleLeftTypeChange(e.target.value)}
-                                            className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            className={`px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                    ? 'bg-white/[0.05] border-white/[0.15] text-white focus:ring-purple-500 focus:border-purple-500'
+                                                    : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                }`}
                                         >
                                             <optgroup label="Technical Indicators">
                                                 <option value="SMA">SMA - Simple Moving Avg</option>
@@ -418,14 +443,20 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                         value={leftSymbol}
                                                         onChange={(e) => setLeftSymbol(e.target.value)}
                                                         placeholder="Symbol"
-                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                        className={`px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                                ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                                : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                            }`}
                                                     />
                                                     <input
                                                         type="number"
                                                         value={leftWindow}
                                                         onChange={(e) => setLeftWindow(parseInt(e.target.value) || 0)}
                                                         placeholder="Window"
-                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                        className={`px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                                ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                                : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                            }`}
                                                     />
                                                 </>
                                             )}
@@ -435,7 +466,10 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                 value={leftSymbol}
                                                 onChange={(e) => setLeftSymbol(e.target.value)}
                                                 placeholder="Symbol"
-                                                className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className={`col-span-2 px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                        ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                        : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                    }`}
                                             />
                                         )}
                                         {leftType === 'THRESHOLD' && (
@@ -444,12 +478,15 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                 value={leftWindow}
                                                 onChange={(e) => setLeftWindow(parseFloat(e.target.value) || 0)}
                                                 placeholder="Constant value"
-                                                className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className={`col-span-2 px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                        ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                        : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                    }`}
                                             />
                                         )}
                                         {(leftType === 'MONTH' || leftType === 'DAY_OF_WEEK' ||
                                             leftType === 'DAY_OF_MONTH' || leftType === 'DAY_OF_YEAR') && (
-                                                <div className="col-span-2 px-2 py-1.5 text-slate-500 text-sm italic">
+                                                <div className={`col-span-2 px-2 py-1.5 text-sm italic ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
                                                     No parameters needed
                                                 </div>
                                             )}
@@ -461,7 +498,10 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                     <select
                                         value={comparison}
                                         onChange={(e) => setComparison(e.target.value as '>' | '<' | '>=' | '<=' | '==')}
-                                        className="px-4 py-1.5 border border-slate-300 rounded text-slate-700 text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                        className={`px-4 py-1.5 border rounded text-sm font-medium focus:ring-2 focus:outline-none ${isDark
+                                                ? 'bg-white/[0.05] border-white/[0.15] text-white focus:ring-purple-500 focus:border-purple-500'
+                                                : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                            }`}
                                     >
                                         <option value=">">{'>'} Greater Than</option>
                                         <option value="<">{'<'} Less Than</option>
@@ -472,15 +512,19 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                 </div>
 
                                 {/* Right Side */}
-                                <div className="bg-slate-50 p-3 rounded-lg mb-3 border border-slate-200">
-                                    <label className="block text-xs font-medium text-slate-600 mb-2">
+                                <div className={`p-3 rounded-lg mb-3 border ${isDark ? 'bg-white/[0.02] border-white/[0.1]' : 'bg-slate-50 border-slate-200'
+                                    }`}>
+                                    <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                                         RIGHT SIDE
                                     </label>
                                     <div className="grid grid-cols-3 gap-2">
                                         <select
                                             value={rightType}
                                             onChange={(e) => setRightType(e.target.value)}
-                                            className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            className={`px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                    ? 'bg-white/[0.05] border-white/[0.15] text-white focus:ring-purple-500 focus:border-purple-500'
+                                                    : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                }`}
                                         >
                                             <optgroup label="Technical Indicators">
                                                 <option value="SMA" disabled={!compatibleRightTypes.includes('SMA')}>
@@ -552,14 +596,20 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                         value={rightSymbol}
                                                         onChange={(e) => setRightSymbol(e.target.value)}
                                                         placeholder="Symbol"
-                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                        className={`px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                                ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                                : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                            }`}
                                                     />
                                                     <input
                                                         type="number"
                                                         value={rightWindow}
                                                         onChange={(e) => setRightWindow(parseInt(e.target.value) || 0)}
                                                         placeholder="Window"
-                                                        className="px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                        className={`px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                                ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                                : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                            }`}
                                                     />
                                                 </>
                                             )}
@@ -569,7 +619,10 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                 value={rightSymbol}
                                                 onChange={(e) => setRightSymbol(e.target.value)}
                                                 placeholder="Symbol"
-                                                className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className={`col-span-2 px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                        ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                        : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                    }`}
                                             />
                                         )}
                                         {rightType === 'THRESHOLD' && (
@@ -578,12 +631,15 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                                 value={rightValue}
                                                 onChange={(e) => setRightValue(parseFloat(e.target.value) || 0)}
                                                 placeholder="Constant value"
-                                                className="col-span-2 px-2 py-1.5 border border-slate-300 rounded text-slate-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className={`col-span-2 px-2 py-1.5 border rounded text-sm focus:ring-2 focus:outline-none ${isDark
+                                                        ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500'
+                                                        : 'border-slate-300 text-slate-700 focus:ring-purple-500 focus:border-transparent'
+                                                    }`}
                                             />
                                         )}
                                         {(rightType === 'MONTH' || rightType === 'DAY_OF_WEEK' ||
                                             rightType === 'DAY_OF_MONTH' || rightType === 'DAY_OF_YEAR') && (
-                                                <div className="col-span-2 px-2 py-1.5 text-slate-500 text-sm italic">
+                                                <div className={`col-span-2 px-2 py-1.5 text-sm italic ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
                                                     No parameters needed
                                                 </div>
                                             )}
@@ -592,14 +648,15 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
 
                                 {/* Validation Warning */}
                                 {!isValidCombination && (
-                                    <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                                    <div className={`mb-3 p-3 rounded-lg border ${isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-300'
+                                        }`}>
                                         <div className="flex items-start gap-2">
-                                            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                             </svg>
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium text-amber-800">Invalid Comparison</p>
-                                                <p className="text-xs text-amber-700 mt-1">
+                                                <p className={`text-sm font-medium ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>Invalid Comparison</p>
+                                                <p className={`text-xs mt-1 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
                                                     {leftType} and {rightType} are not compatible.
                                                     {leftType} values are measured in different units than {rightType}.
                                                     Consider comparing to THRESHOLD instead.
@@ -610,8 +667,9 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                                 )}
 
                                 {/* Condition Preview */}
-                                <div className="bg-slate-900 p-3 rounded-lg border border-slate-300">
-                                    <label className="block text-xs font-medium text-slate-400 mb-2">
+                                <div className={`p-3 rounded-lg border ${isDark ? 'bg-black/50 border-white/[0.15]' : 'bg-slate-900 border-slate-300'
+                                    }`}>
+                                    <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
                                         CONDITION PREVIEW
                                     </label>
                                     <code className="text-sm text-emerald-400 font-mono">
@@ -638,7 +696,10 @@ export const RuleCreationModal: React.FC<RuleCreationModalProps> = ({
                             <button
                                 onClick={handleCustomCreate}
                                 disabled={!isValidCombination}
-                                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all"
+                                className={`w-full px-6 py-3 font-bold rounded-lg transition-all ${isDark
+                                        ? 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]'
+                                        : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed'
+                                    }`}
                             >
                                 {!isValidCombination ? 'Invalid Indicator Combination' : 'Create Rule'}
                             </button>

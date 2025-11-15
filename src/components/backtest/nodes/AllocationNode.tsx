@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import { Allocation } from '../../../types/strategy';
+import { useTheme } from '../../../context/ThemeContext';
 
 interface AllocationNodeData {
     name: string;
@@ -41,6 +42,9 @@ const TEMPLATES = {
 };
 
 export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     const [isEditing, setIsEditing] = useState(data.isNewlyCreated || false);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(data.name);
@@ -130,8 +134,16 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
     return (
         <div
             className={`
-                bg-white rounded-xl shadow-lg border-2 transition-all duration-200 min-w-[280px]
-                ${selected ? 'border-purple-500 shadow-purple-200' : 'border-slate-200'}
+                rounded-xl shadow-lg border-2 transition-all duration-200 min-w-[280px]
+                ${isDark ? 'bg-black' : 'bg-white'}
+                ${selected
+                    ? isDark
+                        ? 'border-purple-500 shadow-purple-500/20'
+                        : 'border-purple-500 shadow-purple-200'
+                    : isDark
+                        ? 'border-white/[0.15]'
+                        : 'border-slate-200'
+                }
                 ${data.isFallback ? 'ring-2 ring-emerald-400' : ''}
             `}
         >
@@ -149,7 +161,11 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
             ))}
 
             {/* Header */}
-            <div className={`px-4 py-3 border-b border-slate-200 ${data.isFallback ? 'bg-emerald-50' : 'bg-slate-50'}`}>
+            <div className={`px-4 py-3 ${isDark ? 'border-b border-white/[0.15]' : 'border-b border-slate-200'
+                } ${data.isFallback
+                    ? isDark ? 'bg-emerald-500/10' : 'bg-emerald-50'
+                    : isDark ? 'bg-white/[0.02]' : 'bg-slate-50'
+                }`}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1">
                         <div className={`w-2 h-2 rounded-full ${data.isFallback ? 'bg-emerald-500' : 'bg-purple-500'}`}></div>
@@ -166,12 +182,18 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                         setIsEditingName(false);
                                     }
                                 }}
-                                className="font-bold text-slate-900 text-sm px-1 py-0.5 border border-purple-300 rounded"
+                                className={`font-bold text-sm px-1 py-0.5 border rounded ${isDark
+                                        ? 'bg-white/[0.05] border-purple-500/50 text-white'
+                                        : 'bg-white border-purple-300 text-slate-900'
+                                    }`}
                                 autoFocus
                             />
                         ) : (
                             <h3
-                                className="font-bold text-slate-900 text-sm cursor-pointer hover:text-purple-600"
+                                className={`font-bold text-sm cursor-pointer transition-colors ${isDark
+                                        ? 'text-white hover:text-purple-400'
+                                        : 'text-slate-900 hover:text-purple-600'
+                                    }`}
                                 onClick={() => setIsEditingName(true)}
                                 title="Click to edit name"
                             >
@@ -182,7 +204,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => setIsEditing(!isEditing)}
-                            className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            className={`p-1 rounded transition-colors ${isDark
+                                    ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-500/10'
+                                    : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'
+                                }`}
                             title="Edit allocation"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +216,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                         </button>
                         <button
                             onClick={data.onDuplicate}
-                            className="p-1 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                            className={`p-1 rounded transition-colors ${isDark
+                                    ? 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/10'
+                                    : 'text-slate-400 hover:text-purple-600 hover:bg-purple-50'
+                                }`}
                             title="Duplicate portfolio"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +228,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                         </button>
                         <button
                             onClick={data.onDelete}
-                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            className={`p-1 rounded transition-colors ${isDark
+                                    ? 'text-gray-400 hover:text-red-400 hover:bg-red-500/10'
+                                    : 'text-slate-400 hover:text-red-600 hover:bg-red-50'
+                                }`}
                             title="Delete portfolio"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,11 +242,18 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                 </div>
                 {data.isFallback ? (
                     <div className="mt-2 space-y-1">
-                        <div className="text-xs text-emerald-700 font-medium">Fallback Portfolio</div>
-                        <div className="text-xs text-slate-500">First in chain, no rules. Add rules to activate switching.</div>
+                        <div className={`text-xs font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                            Fallback Portfolio
+                        </div>
+                        <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+                            First in chain, no rules. Add rules to activate switching.
+                        </div>
                         <button
                             onClick={data.onManageRules}
-                            className="mt-1 w-full px-2 py-1 text-xs text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-dashed border-slate-300 hover:border-purple-300 rounded transition-colors"
+                            className={`mt-1 w-full px-2 py-1 text-xs border border-dashed rounded transition-colors ${isDark
+                                    ? 'text-gray-300 hover:text-purple-400 hover:bg-purple-500/10 border-white/[0.15] hover:border-purple-500/50'
+                                    : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50 border-slate-300 hover:border-purple-300'
+                                }`}
                         >
                             + Define Switching Rules
                         </button>
@@ -223,10 +261,15 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                 ) : (data.assignedRules && (typeof data.assignedRules === 'string' ? data.assignedRules : data.assignedRules.length > 0)) ? (
                     <div className="mt-2 space-y-1">
                         <div className="flex items-center justify-between">
-                            <div className="text-xs font-medium text-slate-600">When to switch TO this portfolio:</div>
+                            <div className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
+                                When to switch TO this portfolio:
+                            </div>
                             <button
                                 onClick={data.onClearRules}
-                                className="p-0.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                className={`p-0.5 rounded transition-colors ${isDark
+                                        ? 'text-gray-400 hover:text-red-400 hover:bg-red-500/10'
+                                        : 'text-slate-400 hover:text-red-600 hover:bg-red-50'
+                                    }`}
                                 title="Clear all rules"
                             >
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +320,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                         )}
                         <button
                             onClick={data.onManageRules}
-                            className="text-xs text-purple-600 hover:text-purple-700 font-medium mt-1"
+                            className={`text-xs font-medium mt-1 ${isDark
+                                    ? 'text-purple-400 hover:text-purple-300'
+                                    : 'text-purple-600 hover:text-purple-700'
+                                }`}
                         >
                             Edit Rules
                         </button>
@@ -285,7 +331,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                 ) : (
                     <button
                         onClick={data.onManageRules}
-                        className="mt-2 w-full px-2 py-1 text-xs text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-dashed border-slate-300 hover:border-purple-300 rounded transition-colors"
+                        className={`mt-2 w-full px-2 py-1 text-xs border border-dashed rounded transition-colors ${isDark
+                                ? 'text-gray-300 hover:text-purple-400 hover:bg-purple-500/10 border-white/[0.15] hover:border-purple-500/50'
+                                : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50 border-slate-300 hover:border-purple-300'
+                            }`}
                     >
                         + Define Switching Rules
                     </button>
@@ -298,12 +347,21 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                     <div className="space-y-2">
                         {/* Template Selector */}
                         {showTemplates && (
-                            <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded-lg">
+                            <div className={`mb-3 p-2 border rounded-lg ${isDark
+                                    ? 'bg-purple-500/10 border-purple-500/30'
+                                    : 'bg-purple-50 border-purple-200'
+                                }`}>
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-medium text-purple-900">Load Template</span>
+                                    <span className={`text-xs font-medium ${isDark ? 'text-purple-300' : 'text-purple-900'
+                                        }`}>
+                                        Load Template
+                                    </span>
                                     <button
                                         onClick={() => setShowTemplates(false)}
-                                        className="text-purple-500 hover:text-purple-700 text-xs"
+                                        className={`text-xs ${isDark
+                                                ? 'text-purple-400 hover:text-purple-300'
+                                                : 'text-purple-500 hover:text-purple-700'
+                                            }`}
                                     >
                                         Skip
                                     </button>
@@ -313,10 +371,17 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                         <button
                                             key={key}
                                             onClick={() => handleLoadTemplate(key as keyof typeof TEMPLATES)}
-                                            className="text-left px-2 py-1.5 bg-white hover:bg-purple-100 border border-purple-200 hover:border-purple-400 rounded text-xs transition-all"
+                                            className={`text-left px-2 py-1.5 border rounded text-xs transition-all ${isDark
+                                                    ? 'bg-white/[0.05] hover:bg-white/[0.1] border-white/[0.15] hover:border-purple-500/50'
+                                                    : 'bg-white hover:bg-purple-100 border-purple-200 hover:border-purple-400'
+                                                }`}
                                         >
-                                            <div className="font-medium text-purple-900 text-[10px] mb-0.5">{template.name}</div>
-                                            <div className="text-[9px] text-purple-600 truncate">
+                                            <div className={`font-medium text-[10px] mb-0.5 ${isDark ? 'text-purple-300' : 'text-purple-900'
+                                                }`}>
+                                                {template.name}
+                                            </div>
+                                            <div className={`text-[9px] truncate ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                                }`}>
                                                 {Object.entries(template.allocation).map(([sym, w]) => `${sym} ${Math.round(w * 100)}%`).join(' · ')}
                                             </div>
                                         </button>
@@ -328,7 +393,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                         {!showTemplates && (
                             <button
                                 onClick={() => setShowTemplates(true)}
-                                className="w-full px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 border border-dashed border-purple-300 rounded transition-colors mb-2"
+                                className={`w-full px-2 py-1 text-xs border border-dashed rounded transition-colors mb-2 ${isDark
+                                        ? 'text-purple-400 hover:bg-purple-500/10 border-white/[0.15] hover:border-purple-500/50'
+                                        : 'text-purple-600 hover:bg-purple-50 border-purple-300'
+                                    }`}
                             >
                                 📋 Load from Template
                             </button>
@@ -341,7 +409,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                     value={symbol.startsWith('_new_asset_') ? '' : symbol}
                                     onChange={(e) => handleUpdateSymbol(symbol, e.target.value)}
                                     placeholder="Ticker Symbol"
-                                    className="flex-1 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className={`flex-1 px-2 py-1 text-xs border rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isDark
+                                            ? 'bg-white/[0.05] border-white/[0.15] text-white placeholder-gray-500'
+                                            : 'bg-white border-slate-300 text-slate-900'
+                                        }`}
                                 />
                                 <input
                                     type="number"
@@ -349,12 +420,18 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                     onChange={(e) => handleUpdateWeight(symbol, Number(e.target.value))}
                                     min="0"
                                     max="100"
-                                    className="w-16 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className={`w-16 px-2 py-1 text-xs border rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isDark
+                                            ? 'bg-white/[0.05] border-white/[0.15] text-white'
+                                            : 'bg-white border-slate-300 text-slate-900'
+                                        }`}
                                 />
-                                <span className="text-xs text-slate-500">%</span>
+                                <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>%</span>
                                 <button
                                     onClick={() => handleRemoveAsset(symbol)}
-                                    className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                    className={`p-1 rounded ${isDark
+                                            ? 'text-red-400 hover:bg-red-500/10'
+                                            : 'text-red-500 hover:bg-red-50'
+                                        }`}
                                 >
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -366,13 +443,17 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                         <button
                             onClick={handleAddAsset}
                             disabled={Object.keys(editedAllocation).length >= 6}
-                            className="w-full mt-2 px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 border border-dashed border-purple-300 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                            className={`w-full mt-2 px-2 py-1 text-xs border border-dashed rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark
+                                    ? 'text-purple-400 hover:bg-purple-500/10 border-white/[0.15] hover:border-purple-500/50 disabled:hover:bg-transparent'
+                                    : 'text-purple-600 hover:bg-purple-50 border-purple-300 disabled:hover:bg-transparent'
+                                }`}
                         >
                             + Add Asset {Object.keys(editedAllocation).length >= 6 ? '(Max 6)' : ''}
                         </button>
 
                         {/* Rebalancing Controls */}
-                        <div className="pt-2 border-t border-slate-200 space-y-2">
+                        <div className={`pt-2 space-y-2 ${isDark ? 'border-t border-white/[0.15]' : 'border-t border-slate-200'
+                            }`}>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
@@ -380,14 +461,20 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                     onChange={(e) => setRebalancingEnabled(e.target.checked)}
                                     className="w-3 h-3 text-purple-600 rounded focus:ring-purple-500"
                                 />
-                                <span className="text-xs font-medium text-slate-700">Enable Rebalancing</span>
+                                <span className={`text-xs font-medium ${isDark ? 'text-gray-200' : 'text-slate-700'
+                                    }`}>
+                                    Enable Rebalancing
+                                </span>
                             </label>
 
                             {rebalancingEnabled && (
                                 <select
                                     value={rebalancingFrequency}
                                     onChange={(e) => setRebalancingFrequency(e.target.value as 'monthly' | 'quarterly')}
-                                    className="w-full text-xs border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className={`w-full text-xs border rounded px-2 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isDark
+                                            ? 'bg-white/[0.05] border-white/[0.15] text-white'
+                                            : 'bg-white border-slate-300 text-slate-900'
+                                        }`}
                                 >
                                     <option value="daily">Daily</option>
                                     <option value="weekly">Weekly</option>
@@ -398,8 +485,12 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                             )}
                         </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                            <span className={`text-xs font-medium ${isValid ? 'text-emerald-600' : 'text-red-600'}`}>
+                        <div className={`flex items-center justify-between pt-2 ${isDark ? 'border-t border-white/[0.15]' : 'border-t border-slate-200'
+                            }`}>
+                            <span className={`text-xs font-medium ${isValid
+                                    ? isDark ? 'text-emerald-400' : 'text-emerald-600'
+                                    : isDark ? 'text-red-400' : 'text-red-600'
+                                }`}>
                                 Total: {Math.round(total * 100)}%
                             </span>
                             <div className="flex gap-2">
@@ -410,14 +501,20 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                                         setRebalancingFrequency(data.rebalancingFrequency || 'monthly');
                                         setIsEditing(false);
                                     }}
-                                    className="px-3 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                                    className={`px-3 py-1 text-xs rounded ${isDark
+                                            ? 'text-gray-300 hover:bg-white/[0.05]'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSave}
                                     disabled={!isValid}
-                                    className="px-3 py-1 text-xs text-white bg-purple-600 hover:bg-purple-700 rounded disabled:bg-slate-300 disabled:cursor-not-allowed"
+                                    className={`px-3 py-1 text-xs text-white rounded disabled:cursor-not-allowed ${isDark
+                                            ? 'bg-purple-500 hover:bg-purple-600 disabled:bg-slate-700'
+                                            : 'bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300'
+                                        }`}
                                 >
                                     Save
                                 </button>
@@ -429,15 +526,19 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
                         <div className="space-y-1">
                             {Object.entries(data.allocation).map(([symbol, weight]) => (
                                 <div key={symbol} className="flex items-center justify-between text-xs">
-                                    <span className="font-medium text-slate-700">{symbol}</span>
+                                    <span className={`font-medium ${isDark ? 'text-gray-200' : 'text-slate-700'}`}>
+                                        {symbol}
+                                    </span>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                        <div className={`w-20 h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-white/[0.1]' : 'bg-slate-200'
+                                            }`}>
                                             <div
                                                 className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
                                                 style={{ width: `${weight * 100}%` }}
                                             ></div>
                                         </div>
-                                        <span className="text-slate-600 font-semibold w-10 text-right">
+                                        <span className={`font-semibold w-10 text-right ${isDark ? 'text-gray-300' : 'text-slate-600'
+                                            }`}>
                                             {Math.round(weight * 100)}%
                                         </span>
                                     </div>
@@ -447,8 +548,10 @@ export const AllocationNode = ({ data, selected }: NodeProps<AllocationNodeData>
 
                         {/* Display rebalancing info */}
                         {data.rebalancingFrequency && (
-                            <div className="pt-2 border-t border-slate-200">
-                                <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                            <div className={`pt-2 ${isDark ? 'border-t border-white/[0.15]' : 'border-t border-slate-200'
+                                }`}>
+                                <div className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-gray-300' : 'text-slate-600'
+                                    }`}>
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                     </svg>
