@@ -163,8 +163,8 @@ export const RULE_PRESETS = {
 
 // Default DSL strategy
 export const DEFAULT_DSL: StrategyDSL = {
-    start_date: "2020-01-01",
-    end_date: "2024-12-31",
+    start_date: "",
+    end_date: "",
     initial_capital: 10000,
     allocations: {},
     fallback_allocation: "",

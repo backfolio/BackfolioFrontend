@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { NavigationMenu } from '../components/NavigationMenu'
 import Layout from '../components/Layout'
 import {
     PasswordChangeModal,
@@ -69,7 +68,6 @@ const Settings = () => {
 
     return (
         <Layout>
-            <NavigationMenu />
             <div className="max-w-4xl mx-auto p-8">
                 {/* Header */}
                 <div className="mb-10">

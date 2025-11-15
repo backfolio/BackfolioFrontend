@@ -112,8 +112,8 @@ const Backtest = () => {
 
     return (
         <Layout>
-            {/* Full-screen container */}
-            <div className="fixed inset-0 flex flex-col overflow-hidden bg-white">
+            {/* Full-screen container - Negative margins to counteract Layout padding, then fills viewport */}
+            <div className="-mt-20 lg:mt-0 h-screen flex flex-col overflow-hidden bg-white">
                 {/* Canvas Area - fills entire space */}
                 <div className="flex-1 bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden relative">
                     <div className="absolute inset-0">

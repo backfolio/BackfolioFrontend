@@ -1,5 +1,6 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { useTheme } from '../context/ThemeContext'
+import { NavigationMenu } from './NavigationMenu'
 
 interface LayoutProps {
     children: ReactNode
@@ -8,6 +9,18 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
     const { theme } = useTheme()
     const isDark = theme === 'dark'
+
+    // Initialize from localStorage, default to false if not set
+    const [isCollapsed, setIsCollapsedState] = useState(() => {
+        const stored = localStorage.getItem('sidebarCollapsed')
+        return stored === 'true'
+    })
+
+    // Persist to localStorage whenever it changes
+    const setIsCollapsed = (value: boolean) => {
+        setIsCollapsedState(value)
+        localStorage.setItem('sidebarCollapsed', String(value))
+    }
 
     return (
         <div className={`min-h-screen relative ${isDark ? 'bg-black' : 'bg-white'}`}>
@@ -18,8 +31,11 @@ const Layout = ({ children }: LayoutProps) => {
                 </div>
             )}
 
-            {/* Main Content Area - Full Width */}
-            <main className="w-full min-h-screen relative z-10">
+            {/* Navigation */}
+            <NavigationMenu isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+
+            {/* Main Content Area - Offset for desktop sidebar, padding for mobile hamburger */}
+            <main className={`w-full min-h-screen relative z-10 transition-all duration-300 pt-20 lg:pt-0 ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 {children}
             </main>
         </div>

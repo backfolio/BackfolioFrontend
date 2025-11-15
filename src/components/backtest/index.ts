@@ -2,6 +2,9 @@
 export { default as BacktestResultsPanel } from './BacktestResultsPanel';
 export { default as BacktestResultsModal } from './BacktestResultsModal';
 export { StrategyCanvas } from './StrategyCanvas';
+export { StrategyToolbar } from './StrategyToolbar';
+export { StrategyEmptyState } from './StrategyEmptyState';
+export { StrategyRulesPanel } from './StrategyRulesPanel';
 export { AllocationNode } from './nodes/AllocationNode';
 export { RuleEdge } from './edges/RuleEdge';
 

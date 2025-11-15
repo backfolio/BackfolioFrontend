@@ -54,6 +54,10 @@ export interface StrategyDSL {
     fallback_allocation: string;
     switching_logic: SwitchingRule[];
     allocation_rules?: AllocationRule[];
+    switch_allocation_cost?: number;
+    cashflow?: number;
+    cashflow_type?: 'dollars' | 'percentage';
+    cashflow_period?: 'weekly' | 'monthly' | 'quarterly' | 'semi-annually' | 'annually';
 }
 
 // Backtest configuration for the UI

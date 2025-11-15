@@ -22,7 +22,6 @@ import { RuleAssignmentModal } from './modals/RuleAssignmentModal';
 import { JsonEditorModal } from './modals/JsonEditorModal';
 import { useTacticalStrategy } from '../../hooks/useTacticalStrategy';
 import { Allocation } from '../../types/strategy';
-import { NavigationMenu } from '../NavigationMenu';
 import { useTheme } from '../../context/ThemeContext';
 
 /**
@@ -548,9 +547,6 @@ export const StrategyCanvas: React.FC<StrategyCanvasProps> = ({
 
     return (
         <div className={`h-screen w-full relative ${isDark ? 'dark bg-[#121212]' : 'bg-slate-50'}`}>
-            {/* Navigation Menu */}
-            <NavigationMenu />
-
             {/* Placeholder Panel Button - Top Right */}
             <button
                 onClick={() => setShowPlaceholderPanel(!showPlaceholderPanel)}

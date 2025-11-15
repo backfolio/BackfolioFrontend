@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Backtest from './pages/Backtest'
 import Portfolios from './pages/Portfolios'
 import Settings from './pages/Settings'
+import AIChat from './pages/AIChat'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -28,6 +29,14 @@ function App() {
                         <Route
                             path="/backtest"
                             element={<Backtest />}
+                        />
+                        <Route
+                            path="/ai-chat"
+                            element={
+                                <ProtectedRoute>
+                                    <AIChat />
+                                </ProtectedRoute>
+                            }
                         />
                         <Route
                             path="/portfolios"
