@@ -27,11 +27,7 @@ function App() {
                         />
                         <Route
                             path="/backtest"
-                            element={
-                                <ProtectedRoute>
-                                    <Backtest />
-                                </ProtectedRoute>
-                            }
+                            element={<Backtest />}
                         />
                         <Route
                             path="/portfolios"

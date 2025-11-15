@@ -17,8 +17,8 @@ export const NavigationMenu = () => {
             <button
                 onClick={() => setShowMenu(!showMenu)}
                 className={`fixed top-6 left-6 z-50 p-3 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl border transition-all hover:scale-105 ${isDark
-                        ? 'bg-black/80 border-white/[0.15] hover:bg-black/90 hover:shadow-purple-500/20'
-                        : 'bg-white/95 border-slate-200/50 hover:bg-white'
+                    ? 'bg-black/80 border-white/[0.15] hover:bg-black/90 hover:shadow-purple-500/20'
+                    : 'bg-white/95 border-slate-200/50 hover:bg-white'
                     }`}
                 title="Menu"
             >
@@ -38,8 +38,8 @@ export const NavigationMenu = () => {
                     />
                     {/* Panel - Floating with rounded corners, auto height */}
                     <div className={`fixed left-6 top-6 w-80 rounded-2xl shadow-2xl z-50 border ${isDark
-                            ? 'bg-black/95 backdrop-blur-xl border-white/[0.15]'
-                            : 'bg-white border-slate-200/50'
+                        ? 'bg-black/95 backdrop-blur-xl border-white/[0.15]'
+                        : 'bg-white border-slate-200/50'
                         }`}>
                         <div className="p-6">
                             {/* Header with Logo */}
@@ -51,8 +51,8 @@ export const NavigationMenu = () => {
                                 <button
                                     onClick={() => setShowMenu(false)}
                                     className={`p-1.5 rounded-lg transition-all ${isDark
-                                            ? 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
-                                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                                        ? 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
+                                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,16 +65,20 @@ export const NavigationMenu = () => {
                             <div className="space-y-1 mb-6">
                                 <button
                                     onClick={() => {
-                                        navigate('/dashboard')
+                                        if (!user) {
+                                            navigate(`/login?redirect=/dashboard`)
+                                        } else {
+                                            navigate('/dashboard')
+                                        }
                                         setShowMenu(false)
                                     }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium ${location.pathname === '/dashboard'
-                                            ? isDark
-                                                ? 'bg-purple-500/20 text-white border border-purple-500/30'
-                                                : 'bg-slate-100 text-slate-900'
-                                            : isDark
-                                                ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        ? isDark
+                                            ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                                            : 'bg-slate-100 text-slate-900'
+                                        : isDark
+                                            ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,16 +89,20 @@ export const NavigationMenu = () => {
 
                                 <button
                                     onClick={() => {
-                                        navigate('/portfolios')
+                                        if (!user) {
+                                            navigate(`/login?redirect=/portfolios`)
+                                        } else {
+                                            navigate('/portfolios')
+                                        }
                                         setShowMenu(false)
                                     }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium ${location.pathname === '/portfolios'
-                                            ? isDark
-                                                ? 'bg-purple-500/20 text-white border border-purple-500/30'
-                                                : 'bg-slate-100 text-slate-900'
-                                            : isDark
-                                                ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        ? isDark
+                                            ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                                            : 'bg-slate-100 text-slate-900'
+                                        : isDark
+                                            ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,12 +117,12 @@ export const NavigationMenu = () => {
                                         setShowMenu(false)
                                     }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium ${location.pathname === '/backtest'
-                                            ? isDark
-                                                ? 'bg-purple-500/20 text-white border border-purple-500/30'
-                                                : 'bg-slate-100 text-slate-900'
-                                            : isDark
-                                                ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        ? isDark
+                                            ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                                            : 'bg-slate-100 text-slate-900'
+                                        : isDark
+                                            ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,16 +133,20 @@ export const NavigationMenu = () => {
 
                                 <button
                                     onClick={() => {
-                                        navigate('/settings')
+                                        if (!user) {
+                                            navigate(`/login?redirect=/settings`)
+                                        } else {
+                                            navigate('/settings')
+                                        }
                                         setShowMenu(false)
                                     }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium ${location.pathname === '/settings'
-                                            ? isDark
-                                                ? 'bg-purple-500/20 text-white border border-purple-500/30'
-                                                : 'bg-slate-100 text-slate-900'
-                                            : isDark
-                                                ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        ? isDark
+                                            ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                                            : 'bg-slate-100 text-slate-900'
+                                        : isDark
+                                            ? 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,39 +193,57 @@ export const NavigationMenu = () => {
 
                             {/* User Section */}
                             <div className="space-y-2">
-                                {user && (
-                                    <div className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isDark ? 'bg-white/[0.05]' : 'bg-slate-50'
-                                        }`}>
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                            {user.email?.charAt(0).toUpperCase() || 'U'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'
-                                                }`}>
-                                                {user.email}
+                                {user ? (
+                                    <>
+                                        <div className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isDark ? 'bg-white/[0.05]' : 'bg-slate-50'
+                                            }`}>
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                {user.email?.charAt(0).toUpperCase() || 'U'}
                                             </div>
-                                            <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                                                Professional
+                                            <div className="flex-1 min-w-0">
+                                                <div className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'
+                                                    }`}>
+                                                    {user.email}
+                                                </div>
+                                                <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+                                                    Professional
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
 
-                                <button
-                                    onClick={() => {
-                                        logout()
-                                        navigate('/')
-                                    }}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all text-sm font-semibold ${isDark
-                                            ? 'bg-white/[0.05] hover:bg-white/[0.1] text-gray-300 hover:text-white border border-white/[0.1]'
-                                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                                        }`}
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                    </svg>
-                                    Sign Out
-                                </button>
+                                        <button
+                                            onClick={() => {
+                                                logout()
+                                                navigate('/')
+                                            }}
+                                            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all text-sm font-semibold ${isDark
+                                                ? 'bg-white/[0.05] hover:bg-white/[0.1] text-gray-300 hover:text-white border border-white/[0.1]'
+                                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                                }`}
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            Sign Out
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            navigate('/login')
+                                            setShowMenu(false)
+                                        }}
+                                        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all text-sm font-semibold ${isDark
+                                            ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg shadow-purple-500/25'
+                                            : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg'
+                                            }`}
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                        </svg>
+                                        Sign In
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
